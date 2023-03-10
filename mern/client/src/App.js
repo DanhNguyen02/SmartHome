@@ -1,27 +1,37 @@
-import React from "react";
+import {Routes, Route} from 'react-router-dom'
 
-// We use Route in order to define the different routes of our application
-import { Route, Routes } from "react-router-dom";
+import './App.css';
+import {DefaultLayout} from './components/Layouts'
+import Global from './components/Global';
+import {publicRoutes} from './routes'
+import { Fragment } from 'react';
 
-// We import all the components we need in our app
-import Navbar from "./components/navbar";
-import RecordList from "./components/recordList";
-import Edit from "./components/edit";
-import Create from "./components/create";
 
-const App = () => {
+function App() {
   return (
-    <div>
-      <Navbar />
-      <div style={{ margin: 20 }}>
-      <Routes>
-        <Route exact path="/" element={<RecordList />} />
-        <Route path="/edit/:id" element={<Edit />} />
-        <Route path="/create" element={<Create />} />
-      </Routes>
-      </div>
+    <div className="App">
+      <Global>    
+          <Routes>
+            {publicRoutes.map((route,index) => {
+                let Layout = DefaultLayout ;
+                if (route.layout)
+                  Layout=route.layout
+                else if(route.layout===null)
+                  Layout = Fragment
+              const Page = route.component
+              return <Route key={index} 
+                            path={route.path}
+                            element={
+                              <Layout>
+                                <Page></Page>
+                              </Layout>
+                            }
+              />
+            })}
+          </Routes>
+      </Global>
     </div>
   );
-};
+}
 
 export default App;
