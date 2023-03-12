@@ -67,7 +67,7 @@ function ListRecords() {
 
 function SensorHistory() {
   return (
-    <Container className={styles.main}>
+    <Container>
       <Row>
         <Breadcrumb>
           <Breadcrumb.Item >
@@ -76,7 +76,7 @@ function SensorHistory() {
           <Breadcrumb.Item >
             <Link to="/history/room">Phòng khách</Link>
           </Breadcrumb.Item>
-          <Breadcrumb.Item active>Nhiệt độ 1</Breadcrumb.Item>
+          <Breadcrumb.Item active>Cảm biến</Breadcrumb.Item>
         </Breadcrumb>
       </Row>
       <Row>
@@ -84,7 +84,7 @@ function SensorHistory() {
           <Form.Control type="date" name="start_date" class="btn" style={{width: '10rem'}}/>
           <span className={styles.dash}>-</span>
           <Form.Control type="date" name="end_date" class="btn" style={{width: '10rem'}}/>
-          <Button variant="info" href="/download" className="ms-3">
+          <Button variant="info" className="ms-3">
             <FontAwesomeIcon icon={faDownload} />
           </Button>
         </div>
