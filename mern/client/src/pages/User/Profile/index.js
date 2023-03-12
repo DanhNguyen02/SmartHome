@@ -58,7 +58,7 @@ export default function Profile() {
     };
 
     return (
-        <Grid container spacing={2} sx={{ alignItems: 'center', p: 4, '& > .MuiGrid-item': {pl: 0, pt: 0}}}>
+        <Grid container spacing={2} sx={{ alignItems: 'center', mt: 4, pl: 8, '& > .MuiGrid-item': {pl: 0, pt: 0}}}>
             <Grid item xs={6} spacing={2}>
                 <Grid item xs={12}>
                     <Typography component="h1" variant="h5" sx={{textAlign: 'left'}}>
@@ -100,8 +100,8 @@ export default function Profile() {
                     </Button>
                 </Grid>
             </Grid>
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1}}>
-                <Grid container spacing={2} item xs={12} sx={{my: 2, '& > .MuiGrid-item': {pt: 0}}}>
+            <Box component="form" onSubmit={handleSubmit} noValidate sx={{my: 4}}>
+                <Grid container spacing={2} item xs={12} sx={{'& > .MuiGrid-item': {pt: 0}}}>
                     <Grid item xs={6} sx={{px: 12}}>
                         <TextField
                             margin="normal"
