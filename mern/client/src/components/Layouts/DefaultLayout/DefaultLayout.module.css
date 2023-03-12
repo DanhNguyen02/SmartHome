@@ -1,9 +1,10 @@
 .container {
+    width: 100%;
     margin: 0;
     padding: 0;
 }
 
 .content {
-    margin-left: 64px;
+    margin-left: 0px;
     padding: 0;
 }
