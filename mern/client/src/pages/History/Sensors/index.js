@@ -29,11 +29,11 @@ function Sensor() {
 
 function Sensors() {
   return (
-    <Container className={styles.main}>
+    <Container>
       <Row>
         <Breadcrumb>
           <Breadcrumb.Item >
-            <Link to="/history">History</Link>
+            <Link className={styles.link} to="/history">History</Link>
           </Breadcrumb.Item>
           <Breadcrumb.Item active>Phòng khách</Breadcrumb.Item>
         </Breadcrumb>

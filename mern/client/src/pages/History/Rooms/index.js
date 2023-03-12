@@ -29,7 +29,7 @@ function Room() {
 
 function Rooms() {
   return (
-    <Container className={styles.main}>
+    <Container>
       <Row>
         <Breadcrumb>
           <Breadcrumb.Item active>History</Breadcrumb.Item>
