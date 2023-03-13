@@ -6,9 +6,6 @@ import {Grid,
         Container,
         FormControlLabel,}
     from '@mui/material';
-import {createTheme,
-        ThemeProvider,}
-    from '@mui/material/styles';
 
 import {PasswordField,
         SmartHomeImage,
@@ -17,8 +14,6 @@ import {PasswordField,
         Title,
         DirectPage,}
     from '../components';
-
-const theme = createTheme();
 
 const AltOption = () => {
     return (

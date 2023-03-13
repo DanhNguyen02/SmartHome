@@ -15,15 +15,12 @@ import SensorHistory from "../pages/History/SensorHistory";
 const publicRoutes = [
   { path: "/dashboard", component: Dashboard, layout: DefaultLayout },
   { path: "/", component: Login, layout: null },
+  { path: "/login", component: Login, layout: null },
   { path: "/register", component: Register, layout: null },
   { path: "/profile", component: Profile, layout: DefaultLayout },
   { path: "/history", component: Rooms, layout: DefaultLayout },
   { path: "/history/room", component: Sensors, layout: DefaultLayout },
-  {
-    path: "/history/room/sensor",
-    component: SensorHistory,
-    layout: DefaultLayout,
-  },
+  { path: "/history/room/sensor", component: SensorHistory, layout: DefaultLayout, },
 ];
 
 //Require Login
