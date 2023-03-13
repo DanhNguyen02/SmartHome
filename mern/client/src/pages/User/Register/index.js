@@ -4,13 +4,9 @@ import {Grid,
         Typography,
         Link,
         Checkbox,
-        CssBaseline,
         Container,
         FormControlLabel,}
     from '@mui/material';
-import {createTheme,
-        ThemeProvider,}
-    from '@mui/material/styles';
 
 import {PasswordField,
         SmartHomeImage,
@@ -20,13 +16,11 @@ import {PasswordField,
         DirectPage,}
     from '../components';
 
-const theme = createTheme();
-
 const PolicyCheckbox = () => {
     return (
         <Grid container sx={{ alignItems: 'center'}}>
             <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
+            control={<Checkbox value="remember" sx={{'& .MuiSvgIcon-root': {color: '#6C63FF'}}}/>}
             label={
                 <Typography variant="body1" sx={{ fontWeight: 'bold' , fontSize: 14}}>
                 I have read and agree to the <Link href="#" underline="always" sx={{ color: '#6C63FF' }}>terms and conditions</Link>
@@ -57,28 +51,25 @@ export default function Register() {
                 <SmartHomeImage/>
             </Grid>
             <Grid lg={6}>
-                <ThemeProvider theme={theme}>
-                    <Container component="main" maxWidth="xs">
-                        <CssBaseline />
-                        <Box
-                            sx={{
-                                mt: 10,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            }}>
-                            <Title/>
-                            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                                <Field type='email' label='Email'/>
-                                <PasswordField type='password' label='Password'/>
-                                <PasswordField type='confirm-password' label='Confirm password'/>
-                                <PolicyCheckbox/>
-                                <AuthButton label='Register'/>
-                                <DirectPage page='register'/>
-                            </Box>
+                <Container component="main" maxWidth="xs">
+                    <Box
+                        sx={{
+                            mt: 10,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}>
+                        <Title/>
+                        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                            <Field type='email' label='Email'/>
+                            <PasswordField type='password' label='Password'/>
+                            <PasswordField type='confirm-password' label='Confirm password'/>
+                            <PolicyCheckbox/>
+                            <AuthButton label='Register'/>
+                            <DirectPage page='register'/>
                         </Box>
-                    </Container>
-                </ThemeProvider>
+                    </Box>
+                </Container>
             </Grid>
         </Grid>
     )

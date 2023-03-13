@@ -69,6 +69,14 @@ const PasswordField = (props) => {
                       </IconButton>
                     </InputAdornment>
                 ),
+            }}
+            sx={{
+                '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#6C63FF',
+                },
+                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#6C63FF',
+                },
             }}/>
     )
 }
@@ -89,13 +97,20 @@ const Field = (props) => {
             label={props.label}
             name={props.type}
             autoComplete={props.type}
-            autoFocus
             InputProps={{
                 startAdornment: (
                     <InputAdornment position="start">
                         {IconMapping[props.type]}
                     </InputAdornment>
                 ),
+            }}
+            sx={{
+                '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#6C63FF',
+                },
+                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#6C63FF',
+                },
             }}/>
     )
 }
@@ -153,12 +168,14 @@ const DirectPage = (props) => {
     }
     return (
         <Box container sx={{mt: 2, display: 'flex', justifyContent: 'center'}}>
-            <Typography component="h1" sx={{fontSize: 12}}>
+            <Typography sx={{fontSize: 12}}>
                 {PageMapping[props.page]['text']} &nbsp;
             </Typography>
-            <Link href={PageMapping[props.page]['url']} sx={{color: '#6C63FF', fontSize: 12}}>
-            {PageMapping[props.page]['link']}
-            </Link>
+            <Typography sx={{fontSize: 12, fontWeight: 'bold'}}>
+                <Link href={PageMapping[props.page]['url']} sx={{color: '#6C63FF', textDecoration: 'none'}}>
+                    {PageMapping[props.page]['link']}
+                </Link>
+            </Typography>
         </Box>
     )
 }

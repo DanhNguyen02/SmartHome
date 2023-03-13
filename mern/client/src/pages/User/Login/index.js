@@ -1,16 +1,11 @@
 import React from 'react';
 import {Grid,
         Box,
-        Typography,
         Link,
         Checkbox,
-        CssBaseline,
         Container,
         FormControlLabel,}
     from '@mui/material';
-import {createTheme,
-        ThemeProvider,}
-    from '@mui/material/styles';
 
 import {PasswordField,
         SmartHomeImage,
@@ -20,14 +15,12 @@ import {PasswordField,
         DirectPage,}
     from '../components';
 
-const theme = createTheme();
-
 const AltOption = () => {
     return (
         <Grid container sx={{alignItems: 'center'}}>
             <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <FormControlLabel
-                    control={<Checkbox value="remember" color="primary" />}
+                    control={<Checkbox value="remember" sx={{'& .MuiSvgIcon-root': {color: '#6C63FF'}}}/>}
                     label="Remember me"
                     sx={{ '& .MuiFormControlLabel-label': { fontWeight: 'bold', fontSize: 14 }, textAlign: 'left' }}
                 />
@@ -62,26 +55,23 @@ export default function Login() {
                 <SmartHomeImage/>
             </Grid>
             <Grid lg={6}>
-                <ThemeProvider theme={theme}>
-                    <Container component="main" maxWidth="xs">
-                        <CssBaseline />
-                        <Box sx={{
-                                mt: 10,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            }}>
-                            <Title/>
-                            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                                <Field type='email' label='Email'/>
-                                <PasswordField type='password' label='Password'/>
-                                <AltOption/>
-                                <AuthButton label='Login'/>
-                                <DirectPage page='login'/>
-                            </Box>
+                <Container component="main" maxWidth="xs">
+                    <Box sx={{
+                            mt: 10,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}>
+                        <Title/>
+                        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                            <Field type='email' label='Email'/>
+                            <PasswordField type='password' label='Password'/>
+                            <AltOption/>
+                            <AuthButton label='Login'/>
+                            <DirectPage page='login'/>
                         </Box>
-                    </Container>
-                </ThemeProvider>
+                    </Box>
+                </Container>
             </Grid>
         </Grid>
     )
