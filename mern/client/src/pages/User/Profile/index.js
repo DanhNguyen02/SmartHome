@@ -138,7 +138,11 @@ export default function Profile() {
                             mx: 3,
                             p: 2,
                             backgroundColor: '#6C63FF',
-                            fontSize: 12
+                            fontSize: 12,
+                            '&:hover': {
+                                backgroundColor: 'white',
+                                color: '#6C63FF',
+                            },
                         }}
                         startIcon={<PhotoCameraOutlined />}>
                         Change profile picture
