@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import {IconButton,
         InputAdornment,
         TextField,
-        Box,}
+        Box,
+        Button,
+        Typography,
+        Link,}
     from "@mui/material";
 import {Visibility,
         VisibilityOff,
@@ -97,6 +100,72 @@ const Field = (props) => {
     )
 }
 
+const Title = () => {
+    return (
+        <>
+            <Typography component="h1" variant="h5">
+                Welcome to
+            </Typography>
+            <Typography component="h1" variant="h5"
+                        sx={{
+                            color: '#6C63FF',
+                            fontWeight: 'bold',
+                        }}>
+                Smart Home
+            </Typography>
+        </> 
+    )
+}
+
+const AuthButton = (props) => {
+    return (
+        <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx = {{
+                mt: 3,
+                p: 2,
+                backgroundColor: '#6C63FF',
+                fontSize: 12,
+                '&:hover': {
+                    backgroundColor: 'white',
+                    color: '#6C63FF',
+                },
+            }}>
+            {props.label}
+        </Button>
+    )
+}
+
+const DirectPage = (props) => {
+    const PageMapping = {
+        'login': {
+            'text': 'Already have account?',
+            'link': 'Register',
+            'url': '/register'
+        },
+        'register': {
+            'text': 'Don\'t have an account?',
+            'link': 'Login',
+            'url': '/login'
+        }
+    }
+    return (
+        <Box container sx={{mt: 2, display: 'flex', justifyContent: 'center'}}>
+            <Typography component="h1" sx={{fontSize: 12}}>
+                {PageMapping[props.page]['text']} &nbsp;
+            </Typography>
+            <Link href={PageMapping[props.page]['url']} sx={{color: '#6C63FF', fontSize: 12}}>
+            {PageMapping[props.page]['link']}
+            </Link>
+        </Box>
+    )
+}
+
 export {PasswordField,
         SmartHomeImage,
-        Field,};
+        Field,
+        Title,
+        AuthButton,
+        DirectPage,};

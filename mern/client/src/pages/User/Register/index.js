@@ -1,6 +1,5 @@
 import React from 'react';
-import {Button,
-        Grid,
+import {Grid,
         Box,
         Typography,
         Link,
@@ -15,10 +14,27 @@ import {createTheme,
 
 import {PasswordField,
         SmartHomeImage,
-        Field,}
+        Field,
+        AuthButton,
+        Title,
+        DirectPage,}
     from '../components';
 
 const theme = createTheme();
+
+const PolicyCheckbox = () => {
+    return (
+        <Grid container sx={{ alignItems: 'center'}}>
+            <FormControlLabel
+            control={<Checkbox value="remember" color="primary" />}
+            label={
+                <Typography variant="body1" sx={{ fontWeight: 'bold' , fontSize: 14}}>
+                I have read and agree to the <Link href="#" underline="always" sx={{ color: '#6C63FF' }}>terms and conditions</Link>
+                </Typography>
+            }/>
+        </Grid>
+    )
+}
 
 export default function Register() {
     const handleSubmit = (event) => {
@@ -50,58 +66,15 @@ export default function Register() {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                            }}
-                        >
-                            <Typography component="h1" variant="h5">
-                                Welcome to
-                            </Typography>
-                            <Typography component="h1" variant="h5"
-                                        sx={{
-                                            color: '#6C63FF',
-                                            fontWeight: 'bold',
-                                        }}>
-                                Smart Home
-                            </Typography>
+                            }}>
+                            <Title/>
                             <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                                 <Field type='email' label='Email'/>
                                 <PasswordField type='password' label='Password'/>
                                 <PasswordField type='confirm-password' label='Confirm password'/>
-                                <Grid container sx={{ alignItems: 'center' }}>
-                                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-start' }}>
-                                        <FormControlLabel
-                                        control={<Checkbox value="remember" color="primary" />}
-                                        label={
-                                            <Typography variant="body1" sx={{ fontWeight: 'bold' , fontSize: 14}}>
-                                            I have read and agree to the <Link href="#" underline="always" sx={{ color: '#6C63FF' }}>terms and conditions</Link>
-                                            </Typography>
-                                        }
-                                        />
-                                    </Grid>
-                                </Grid>
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    sx = {{
-                                        mt: 3,
-                                        p: 2,
-                                        backgroundColor: '#6C63FF',
-                                        fontSize: 12,
-                                        '&:hover': {
-                                            backgroundColor: 'white',
-                                            color: '#6C63FF',
-                                        },
-                                    }}>
-                                    Register
-                                </Button>
-                                <Box container sx={{mt: 2, display: 'flex', justifyContent: 'center'}}>
-                                    <Typography component="h1" sx={{fontSize: 12}}>
-                                        Already have account?&nbsp;
-                                    </Typography>
-                                    <Link href="/login" sx={{color: '#6C63FF', fontSize: 12}}>
-                                        Login
-                                    </Link>
-                                </Box>
+                                <PolicyCheckbox/>
+                                <AuthButton label='Register'/>
+                                <DirectPage page='register'/>
                             </Box>
                         </Box>
                     </Container>
