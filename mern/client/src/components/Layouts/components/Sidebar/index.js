@@ -39,22 +39,24 @@ function Sidebar() {
       <CDBSidebarContent>
         <CDBSidebarMenu>
           <CDBSidebarMenuItem>Menu</CDBSidebarMenuItem>
-          <CDBSidebarMenuItem icon="th-large">
-            <Link to="/dashboard">Dashboard</Link>
-          </CDBSidebarMenuItem>
+          <Link to="/dashboard">
+            <CDBSidebarMenuItem icon="th-large">Dashboard</CDBSidebarMenuItem>
+          </Link>
           <CDBSidebarMenuItem icon="laptop">
             Devices and Sensors
           </CDBSidebarMenuItem>
           <CDBSidebarMenuItem icon="kaaba" iconType="solid">
             Rooms
           </CDBSidebarMenuItem>
-          <CDBSidebarMenuItem
-            icon="scroll"
-            iconType="solid"
-            style={{ marginBottom: "20px" }}
-          >
-            <Link to="/history">History</Link>
-          </CDBSidebarMenuItem>
+          <Link to="/history">
+            <CDBSidebarMenuItem
+              icon="scroll"
+              iconType="solid"
+              style={{ marginBottom: "20px" }}
+            >
+              History
+            </CDBSidebarMenuItem>
+          </Link>
           <CDBSidebarMenuItem style={{ borderTop: "1px solid #C8CBD9" }}>
             Others
           </CDBSidebarMenuItem>
