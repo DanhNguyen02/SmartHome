@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {Button,
-        TextField,
         Grid,
         Box,
         Typography,
-        InputAdornment,
-        IconButton,
         Link,
         Checkbox,
         CssBaseline,
@@ -15,27 +12,15 @@ import {Button,
 import {createTheme,
         ThemeProvider,}
     from '@mui/material/styles';
-import {EmailOutlined,
-        VpnKeyOutlined,
-        Visibility,
-        VisibilityOff,}
-    from '@material-ui/icons';
 
-import pic from '../../../assets/images/login-register.png';
+import {PasswordField,
+        SmartHomeImage,
+        Field}
+    from '../components';
 
 const theme = createTheme();
 
 export default function Login() {
-    const [showPassword, setShowPassword] = useState(false);
-
-    const handleClickShowPassword = () => {
-        setShowPassword(!showPassword);
-    };
-
-    const handleMouseDownPassword = (event) => {
-        event.preventDefault();
-    };
-
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -53,26 +38,18 @@ export default function Login() {
                   pt: 4,
               }}>
             <Grid lg={6}>
-                <Box sx={{ width: '100%', height: '100%' }}>
-                    <img
-                        alt="Smart home"
-                        src={pic}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                </Box>
+                <SmartHomeImage/>
             </Grid>
             <Grid lg={6}>
                 <ThemeProvider theme={theme}>
                     <Container component="main" maxWidth="xs">
                         <CssBaseline />
-                        <Box
-                            sx={{
+                        <Box sx={{
                                 mt: 10,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                            }}
-                        >
+                            }}>
                             <Typography component="h1" variant="h5">
                                 Welcome to
                             </Typography>
@@ -80,57 +57,12 @@ export default function Login() {
                                         sx={{
                                             color: '#6C63FF',
                                             fontWeight: 'bold',
-                                        }}
-                            >
+                                        }}>
                                 Smart Home
                             </Typography>
                             <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="email"
-                                    label="Email Address"
-                                    name="email"
-                                    autoComplete="email"
-                                    autoFocus
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <EmailOutlined />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    name="password"
-                                    label="Password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    id="password"
-                                    autoComplete="current-password"
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <VpnKeyOutlined />
-                                            </InputAdornment>
-                                        ),
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                              <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={handleClickShowPassword}
-                                                onMouseDown={handleMouseDownPassword}
-                                                edge="end"
-                                              >
-                                                {showPassword ? <Visibility /> : <VisibilityOff />}
-                                              </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
+                                <Field type='email' label='Email'/>
+                                <PasswordField type='password' label='Password'/>
                                 <Grid container sx={{ alignItems: 'center' }}>
                                     <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-start' }}>
                                         <FormControlLabel
@@ -153,7 +85,11 @@ export default function Login() {
                                         mt: 3,
                                         p: 2,
                                         backgroundColor: '#6C63FF',
-                                        fontSize: 12
+                                        fontSize: 12,
+                                        '&:hover': {
+                                            backgroundColor: 'white',
+                                            color: '#6C63FF',
+                                        },
                                     }}
                                 >
                                     Login
