@@ -6,6 +6,9 @@ import {Grid,
         Container,
         FormControlLabel,}
     from '@mui/material';
+import {createTheme,
+        ThemeProvider,}
+    from '@mui/material/styles';
 
 import {PasswordField,
         SmartHomeImage,
@@ -15,12 +18,14 @@ import {PasswordField,
         DirectPage,}
     from '../components';
 
+const theme = createTheme();
+
 const AltOption = () => {
     return (
         <Grid container sx={{alignItems: 'center'}}>
             <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <FormControlLabel
-                    control={<Checkbox value="remember" sx={{'& .MuiSvgIcon-root': {color: '#6C63FF'}}}/>}
+                    control={<Checkbox value="remember" color="primary" />}
                     label="Remember me"
                     sx={{ '& .MuiFormControlLabel-label': { fontWeight: 'bold', fontSize: 14 }, textAlign: 'left' }}
                 />

@@ -7,6 +7,7 @@ import {
   CDBSidebarMenu,
   CDBSidebarFooter,
 } from "cdbreact";
+import { Link } from "react-router-dom";
 
 import Logo from "../../../../assets/images/logo.png";
 
@@ -15,7 +16,12 @@ function Sidebar() {
     <CDBSidebar
       textColor="#333"
       backgroundColor="#f0f0f0"
-      style={{ height: "100vh" }}
+      style={{
+        height: "100vh",
+        position: "-webkit-sticky",
+        position: "sticky",
+        top: "0",
+      }}
     >
       <CDBSidebarHeader prefix={<i className="fa fa-bars" />}>
         <div
@@ -32,24 +38,33 @@ function Sidebar() {
       </CDBSidebarHeader>
       <CDBSidebarContent>
         <CDBSidebarMenu>
-          <CDBSidebarMenuItem icon="th-large">Dashboard</CDBSidebarMenuItem>
-          <CDBSidebarMenuItem icon="sticky-note">
-            Task Assignment
+          <CDBSidebarMenuItem>Menu</CDBSidebarMenuItem>
+          <Link to="/dashboard">
+            <CDBSidebarMenuItem icon="th-large">Dashboard</CDBSidebarMenuItem>
+          </Link>
+          <CDBSidebarMenuItem icon="laptop">
+            Devices and Sensors
           </CDBSidebarMenuItem>
-          <CDBSidebarMenuItem icon="comment-dots" iconType="solid">
-            Message
+          <CDBSidebarMenuItem icon="kaaba" iconType="solid">
+            Rooms
           </CDBSidebarMenuItem>
-          <CDBSidebarMenuItem icon="route" iconType="solid">
-            Route
-          </CDBSidebarMenuItem>
-          <CDBSidebarMenuItem icon="user" iconType="solid">
-            Employees
-          </CDBSidebarMenuItem>
-          <CDBSidebarMenuItem icon="exclamation-circle" iconType="solid">
-            Blacklist
+          <Link to="/history">
+            <CDBSidebarMenuItem
+              icon="scroll"
+              iconType="solid"
+              style={{ marginBottom: "20px" }}
+            >
+              History
+            </CDBSidebarMenuItem>
+          </Link>
+          <CDBSidebarMenuItem style={{ borderTop: "1px solid #C8CBD9" }}>
+            Others
           </CDBSidebarMenuItem>
           <CDBSidebarMenuItem icon="cog" iconType="solid">
             Setting
+          </CDBSidebarMenuItem>
+          <CDBSidebarMenuItem icon="info-circle" iconType="solid">
+            Help
           </CDBSidebarMenuItem>
         </CDBSidebarMenu>
       </CDBSidebarContent>
