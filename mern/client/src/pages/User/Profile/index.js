@@ -77,7 +77,7 @@ const BottomButton = (props) => {
             type={props.type}
             variant="contained"
             sx = {{
-                mr: 2,
+                mr: 4,
                 p: 2,
                 backgroundColor: TypeMapping[props.type]['backgroundColor'],
                 fontSize: 12,
