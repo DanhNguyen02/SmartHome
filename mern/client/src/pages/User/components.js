@@ -59,14 +59,13 @@ const PasswordField = (props) => {
                 ),
                 endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
+                        <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
+                            edge="end">
+                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
                     </InputAdornment>
                 ),
             }}
@@ -88,6 +87,7 @@ const Field = (props) => {
         'phone': <PhoneOutlined/>,
         'address': <HomeOutlined/>
     }
+    
     return (
         <TextField
             margin="normal"
