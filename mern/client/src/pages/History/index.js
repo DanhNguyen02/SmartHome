@@ -176,7 +176,7 @@ function ChooseSensor() {
 
 function Graph() {
   return (
-    <Box sx={{width: "100%", height: "500px"}}>
+    <Box sx={{width: "95%", height: "500px"}}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           width={700}
@@ -205,7 +205,7 @@ function RecordTable() {
   return (
     <>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 1100 }} aria-label="customized table">
+        <Table sx={{ width:'100%' }} aria-label="customized table">
           <TableHead>
             <TableRow>
               <StyledTableCell>Thời gian</StyledTableCell>
