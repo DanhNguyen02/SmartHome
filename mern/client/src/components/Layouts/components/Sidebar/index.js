@@ -45,9 +45,11 @@ function Sidebar() {
           <CDBSidebarMenuItem icon="laptop">
             Thiết bị và cảm biến
           </CDBSidebarMenuItem>
-          <CDBSidebarMenuItem icon="kaaba" iconType="solid">
-            Phòng
-          </CDBSidebarMenuItem>
+          <Link to="/rooms">
+            <CDBSidebarMenuItem icon="kaaba" iconType="solid">
+              Phòng
+            </CDBSidebarMenuItem>
+          </Link>
           <Link to="/history">
             <CDBSidebarMenuItem
               icon="scroll"
