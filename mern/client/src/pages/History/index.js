@@ -228,7 +228,7 @@ function RecordTable() {
   )
 }
 
-function SensorHistory() {
+function History() {
   return (
     <>
       <Breadcrumbs aria-label="breadcrumb" style={{ margin: '20px' }}>
@@ -240,4 +240,4 @@ function SensorHistory() {
     </>
   );
 }
-export default SensorHistory;
+export default History;
