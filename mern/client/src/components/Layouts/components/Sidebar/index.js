@@ -40,7 +40,7 @@ function Sidebar() {
         <CDBSidebarMenu>
           <CDBSidebarMenuItem>Các mục chính</CDBSidebarMenuItem>
           <Link to="/dashboard">
-            <CDBSidebarMenuItem icon="th-large">Bảng điều khiển</CDBSidebarMenuItem>
+            <CDBSidebarMenuItem icon="th-large">Dashboard</CDBSidebarMenuItem>
           </Link>
           <CDBSidebarMenuItem icon="laptop">
             Thiết bị và cảm biến
