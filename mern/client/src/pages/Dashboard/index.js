@@ -9,6 +9,7 @@ import {
   Paper,
   Grid,
   Switch,
+  Slider
 } from "@mui/material";
 import {
   LineChart,
@@ -26,7 +27,7 @@ import FanIcon from "../../assets/images/fanIcon.png";
 import SensorIcon from "../../assets/images/sensorIcon.png";
 
 const MARGIN_LEFT = "20px";
-const ROOM = "Master Bedroom";
+const ROOM = "Phòng ngủ chính";
 const TEMP = "26";
 const HUMI = "68";
 const today = new Date().toLocaleDateString();
@@ -72,22 +73,22 @@ const DATA = [
 
 const LIGHT = [
   {
-    name: "Ceiling Light 1",
+    name: "Đèn trần 1",
     toggle: false,
     brightness: 0,
   },
   {
-    name: "Ceiling Light 2",
+    name: "Đèn trần 2",
     toggle: false,
     brightness: 0,
   },
   {
-    name: "Toilet Room Light",
+    name: "Đèn toilet",
     toggle: false,
     brightness: 0,
   },
   {
-    name: "Sleeping Light ",
+    name: "Đèn ngủ",
     toggle: false,
     brightness: 0,
   },
@@ -95,22 +96,22 @@ const LIGHT = [
 
 const FAN = [
   {
-    name: "Fan 1",
+    name: "Quạt 1",
     toggle: false,
   },
   {
-    name: "Fan 2",
+    name: "Quạt 2",
     toggle: false,
   },
 ];
 
 const SENSOR = [
   {
-    name: "Room Temperature",
+    name: "Nhiệt độ",
     toggle: false,
   },
   {
-    name: "Room Humidity",
+    name: "Độ ẩm",
     toggle: false,
   },
 ];
@@ -136,14 +137,16 @@ function Dashboard() {
           <Grid item xs={8}>
             <Item sx={{ minHeight: "350px" }}>
               <Box sx={{ position: "relative" }}>
-                <p>Data Chart</p>
+                <p>Biểu đồ dữ liệu</p>
                 <h5>{ROOM}</h5>
-                <Button
-                  variant="outlined"
-                  sx={{ position: "absolute", top: "0", right: "0" }}
-                >
-                  Detail
-                </Button>
+                <Link href="/history">
+                  <Button
+                    variant="outlined"
+                    sx={{ position: "absolute", top: "0", right: "0" }}
+                  >
+                    Chi tiết
+                  </Button>
+                </Link>
               </Box>
               <Box
                 sx={{
@@ -174,12 +177,14 @@ function Dashboard() {
                       type="monotone"
                       dataKey="temperature"
                       stroke="#8884d8"
+                      name="Nhiệt độ"
                     />
                     <Line
                       yAxisId="right"
                       type="monotone"
                       dataKey="humidity"
                       stroke="#82ca9d"
+                      name="Độ ẩm"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -202,7 +207,7 @@ function Dashboard() {
                   width: "70%",
                 }}
               >
-                <p>Temperature</p>
+                <p>Nhiệt độ</p>
                 <Box
                   sx={{
                     fontSize: "35px",
@@ -223,7 +228,7 @@ function Dashboard() {
                   width: "70%",
                 }}
               >
-                <p>Humidity</p>
+                <p>Độ ẩm</p>
                 <Box
                   sx={{
                     fontSize: "35px",
@@ -238,7 +243,7 @@ function Dashboard() {
           </Grid>
           <Grid item xs={12}>
             <Box sx={{ marginLeft: MARGIN_LEFT, display: "flex" }}>
-              <h6>Devices and Sensors</h6>
+              <h6>Thiết bị và Cảm biến</h6>
               <Box sx={{ marginLeft: "40px" }}>
                 <FontAwesomeIcon icon={faGear} />
               </Box>
@@ -247,7 +252,7 @@ function Dashboard() {
 
           <Grid item xs={4}>
             <Item>
-              <p>Lights</p>
+              <p>Đèn</p>
               {LIGHT.map((light) => (
                 <Box key={light.name}>
                   <Box
@@ -278,7 +283,7 @@ function Dashboard() {
           </Grid>
           <Grid item xs={4}>
             <Item>
-              <p>Air conditioners and Fans</p>
+              <p>Máy lạnh và quạt</p>
               {FAN.map((fan) => (
                 <Box key={fan.name}>
                   <Box
@@ -301,7 +306,17 @@ function Dashboard() {
                       }}
                     />
                     <p style={{ marginTop: "4px" }}>{fan.name}</p>
-                    <Switch sx={{ position: "absolute", right: "0" }} />
+                    {/* <Switch sx={{ position: "absolute", right: "0" }} /> */}
+                    <Slider
+                      aria-label="Temperature"
+                      defaultValue={50}
+                      valueLabelDisplay="auto"
+                      step={25}
+                      marks
+                      min={0}
+                      max={100}
+                      sx={{position: "absolute", right: "0", width: '60%'}}
+                    />
                   </Box>
                 </Box>
               ))}
@@ -309,7 +324,7 @@ function Dashboard() {
           </Grid>
           <Grid item xs={4}>
             <Item>
-              <p>Sensors</p>
+              <p>Cảm biến</p>
               {SENSOR.map((sensor) => (
                 <Box key={sensor.name}>
                   <Box
