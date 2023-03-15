@@ -3,7 +3,6 @@ import {FormControl,
         Button,
         Grid,
         Box,
-        Typography,
         InputAdornment,
         MenuItem,
         InputLabel,
@@ -17,10 +16,45 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import {PasswordField,
-        Field}
+        Field,
+        Title}
 from '../components';
 
 import pic from '../../../assets/images/HarryMaguire.png';
+
+const ProfilePicture = () => {
+    return (
+        <>
+            <Box sx={{ width: 120, height: 120 }}>
+                <img
+                    alt="Smart home"
+                    src={pic}
+                    style={{ 
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: 50,
+                        border: '1px solid black', }}/>
+            </Box>
+            <Button
+                type="submit"
+                variant="contained"
+                sx = {{
+                    mx: 3,
+                    p: 2,
+                    backgroundColor: '#6C63FF',
+                    fontSize: 12,
+                    '&:hover': {
+                        backgroundColor: 'white',
+                        color: '#6C63FF',
+                    },
+                }}
+                startIcon={<PhotoCameraOutlined/>}>
+                Change profile picture
+            </Button>
+        </>
+    )
+}
 
 const GenderSelect = () => {
     return (
@@ -92,7 +126,7 @@ const BottomButton = (props) => {
     )
 }
 
-export default function Profile() {
+export default function Page() {
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -106,47 +140,10 @@ export default function Profile() {
         <Grid container spacing={2} sx={{ alignItems: 'center', mt: 4, pl: 8, '& > .MuiGrid-item': {pl: 0, pt: 0}}}>
             <Grid item xs={6} spacing={2}>
                 <Grid item xs={12}>
-                    <Typography component="h1" variant="h5" sx={{textAlign: 'left'}}>
-                        Welcome
-                    </Typography>
-                    <Typography component="h1" variant="h5"
-                                sx={{
-                                    color: '#6C63FF',
-                                    fontWeight: 'bold',
-                                    textAlign: 'left'
-                                }}>
-                        Harry Marguire
-                    </Typography>
+                    <Title fullname="Harry Maguire"/>
                 </Grid>
                 <Grid item xs={12} sx={{display: 'flex', alignItems: 'center', mt: 2}}>
-                    <Box sx={{ width: 120, height: 120 }}>
-                        <img
-                            alt="Smart home"
-                            src={pic}
-                            style={{ 
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                borderRadius: 50,
-                                border: '1px solid black', }}
-                        />
-                    </Box>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        sx = {{
-                            mx: 3,
-                            p: 2,
-                            backgroundColor: '#6C63FF',
-                            fontSize: 12,
-                            '&:hover': {
-                                backgroundColor: 'white',
-                                color: '#6C63FF',
-                            },
-                        }}
-                        startIcon={<PhotoCameraOutlined />}>
-                        Change profile picture
-                    </Button>
+                    <ProfilePicture/>
                 </Grid>
             </Grid>
             <Box component="form" onSubmit={handleSubmit} noValidate sx={{my: 4}}>

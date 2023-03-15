@@ -22,8 +22,7 @@ const AltOption = () => {
                 <FormControlLabel
                     control={<Checkbox value="remember" color="primary" />}
                     label="Remember me"
-                    sx={{ '& .MuiFormControlLabel-label': { fontWeight: 'bold', fontSize: 14 }, textAlign: 'left' }}
-                />
+                    sx={{ '& .MuiFormControlLabel-label': { fontWeight: 'bold', fontSize: 14 }, textAlign: 'left' }}/>
             </Grid>
             <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Link href="#" sx={{ color: '#6C63FF', fontSize: 14 }}>
@@ -34,7 +33,7 @@ const AltOption = () => {
     )
 }
 
-export default function Login() {
+export default function Page() {
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
