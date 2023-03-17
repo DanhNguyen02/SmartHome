@@ -9,10 +9,10 @@ import {
   CardMedia,
   Modal,
   TextField,
-  Grid
+  Grid,
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Dropdown } from 'react-bootstrap';
 import rooms from '../../assets/data/rooms.json';
 import Logo from '../../assets/images/logo.png';
 
@@ -90,10 +90,10 @@ function Rooms() {
   }
   function ListRooms() {
     return(rooms.map((room) => (
-      <Card sx={{ display: 'flex', margin: 4, boxShadow: '1px 1px 1px 1px grey' }}>
+      <Card sx={{ display: 'flex', margin: 4, boxShadow: '1px 1px 1px 1px grey', position: 'relative' }}>
         <CardMedia
           component="img"
-          sx={{ width: 100 }}
+          sx={{ width: 120 }}
           image={Logo}
           alt="Live from space album cover"
         />
@@ -107,9 +107,13 @@ function Rooms() {
             </Typography>
           </CardContent>
         </Box>
-        <MoreVertIcon 
-          sx={{position: 'absolute', right: 35, fontSize: 35, marginTop: 1}}
-        />
+        <Dropdown style={{position: 'absolute', right: 0}}>
+          <Dropdown.Toggle variant="primary" id="dropdown-basic" size="sm"/>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={handleOpen}>Chỉnh sửa</Dropdown.Item>
+            <Dropdown.Item>Xóa</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </Card>
     )))
   }
