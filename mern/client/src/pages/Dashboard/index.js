@@ -76,33 +76,14 @@ const LIGHT = [
     name: "Đèn trần 1",
     toggle: false,
     brightness: 0,
-  },
-  {
-    name: "Đèn trần 2",
-    toggle: false,
-    brightness: 0,
-  },
-  {
-    name: "Đèn toilet",
-    toggle: false,
-    brightness: 0,
-  },
-  {
-    name: "Đèn ngủ",
-    toggle: false,
-    brightness: 0,
-  },
+  }
 ];
 
 const FAN = [
   {
     name: "Quạt 1",
     toggle: false,
-  },
-  {
-    name: "Quạt 2",
-    toggle: false,
-  },
+  }
 ];
 
 const SENSOR = [
@@ -124,6 +105,8 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 function Dashboard() {
+  const [fanVolume, setFanVolume] = React.useState(0);
+  const [lightValue, setLightValue] = React.useState(0);
   return (
     <>
       <Breadcrumbs aria-label="breadcrumb" style={{ margin: MARGIN_LEFT }}>
@@ -275,7 +258,7 @@ function Dashboard() {
                       }}
                     />
                     <p style={{ marginTop: "4px" }}>{light.name}</p>
-                    <Switch sx={{ position: "absolute", right: "0" }} />
+                    <Switch sx={{ position: "absolute", right: "0" }} onChange={(e,val) => setLightValue(val)}/>
                   </Box>
                 </Box>
               ))}
@@ -316,6 +299,7 @@ function Dashboard() {
                       min={0}
                       max={100}
                       sx={{position: "absolute", right: "0", width: '60%'}}
+                      onChange={(e,val) => {setFanVolume(val)}}
                     />
                   </Box>
                 </Box>
