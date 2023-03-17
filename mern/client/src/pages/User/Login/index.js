@@ -50,10 +50,10 @@ export default function Page() {
                   px: 16,
                   pt: 4,
               }}>
-            <Grid lg={6}>
+            <Grid sm={6}>
                 <SmartHomeImage/>
             </Grid>
-            <Grid lg={6}>
+            <Grid sm={6}>
                 <Container component="main" maxWidth="xs">
                     <Box sx={{
                             mt: 10,
