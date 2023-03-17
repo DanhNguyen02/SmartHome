@@ -59,7 +59,15 @@ const ProfilePicture = () => {
 const GenderSelect = () => {
     return (
         <Grid container justifyItems="flex-start">
-            <FormControl margin="normal" sx={{width: 160}}>
+            <FormControl
+                margin="normal"
+                sx={{width: 160,
+                    '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#6C63FF'
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#6C63FF'
+                    }}}>
                 <InputLabel id="gender-select-label">Gender</InputLabel>
                 <Select
                     labelId="gender-select-label"
@@ -85,7 +93,16 @@ const GenderSelect = () => {
 const BirthSelect = () => {
     return (
         <Grid container justifyItems="flex-start">
-            <FormControl margin="normal">
+            <FormControl
+                margin="normal"
+                sx={{
+                    '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#6C63FF'
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#6C63FF'
+                    }
+                }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker label="Date of birth"/>
                 </LocalizationProvider>
@@ -111,7 +128,7 @@ const BottomButton = (props) => {
             type={props.type}
             variant="contained"
             sx = {{
-                mr: 4,
+                mr: 6,
                 p: 2,
                 backgroundColor: TypeMapping[props.type]['backgroundColor'],
                 fontSize: 12,
