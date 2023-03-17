@@ -13,26 +13,10 @@ import {
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import rooms from '../../assets/data/rooms.json';
 import Logo from '../../assets/images/logo.png';
 
 function Rooms() {
-  const rooms = [
-    {
-      id: 1,
-      name: "Phòng khách",
-      description: "Cũng là phòng khách"
-    },
-    {
-      id: 2,
-      name: "Phòng bếp",
-      description: "Cũng là phòng bếp"
-    },
-    {
-      id: 3,
-      name: "Phòng ngủ",
-      description: "Cũng là phòng ngủ"
-    },
-  ]
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -109,16 +93,16 @@ function Rooms() {
       <Card sx={{ display: 'flex', margin: 4, boxShadow: '1px 1px 1px 1px grey' }}>
         <CardMedia
           component="img"
-          sx={{ width: 151 }}
+          sx={{ width: 100 }}
           image={Logo}
           alt="Live from space album cover"
         />
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <CardContent sx={{ flex: '1 0 auto' }}>
-            <Typography component="div" variant="h5">
+            <Typography component="div" variant="h6">
               {room.name}
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary" component="div">
+            <Typography variant="subtitle2" color="text.secondary" component="div">
               {room.description}
             </Typography>
           </CardContent>
