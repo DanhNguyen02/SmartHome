@@ -22,6 +22,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import DownloadIcon from '@mui/icons-material/Download';
+import rooms from '../../assets/data/rooms.json'
 
 function ListRooms() {
   return (
@@ -35,11 +36,7 @@ function ListRooms() {
   );
 }
 
-const listRooms = [
-  "Phòng khách",
-  "Phòng ngủ",
-  "Phòng bếp"
-];
+const listRooms = rooms.map((room) => room.name);
 
 function ListSensors() {
   return (
