@@ -38,39 +38,41 @@ function Sidebar() {
       </CDBSidebarHeader>
       <CDBSidebarContent>
         <CDBSidebarMenu>
-          <CDBSidebarMenuItem>Menu</CDBSidebarMenuItem>
+          <CDBSidebarMenuItem>Các mục chính</CDBSidebarMenuItem>
           <Link to="/dashboard">
             <CDBSidebarMenuItem icon="th-large">Dashboard</CDBSidebarMenuItem>
           </Link>
           <CDBSidebarMenuItem icon="laptop">
-            Devices and Sensors
+            Thiết bị và cảm biến
           </CDBSidebarMenuItem>
-          <CDBSidebarMenuItem icon="kaaba" iconType="solid">
-            Rooms
-          </CDBSidebarMenuItem>
+          <Link to="/rooms">
+            <CDBSidebarMenuItem icon="kaaba" iconType="solid">
+              Phòng
+            </CDBSidebarMenuItem>
+          </Link>
           <Link to="/history">
             <CDBSidebarMenuItem
               icon="scroll"
               iconType="solid"
               style={{ marginBottom: "20px" }}
             >
-              History
+              Lịch sử
             </CDBSidebarMenuItem>
           </Link>
           <CDBSidebarMenuItem style={{ borderTop: "1px solid #C8CBD9" }}>
-            Others
+            Các mục khác
           </CDBSidebarMenuItem>
           <CDBSidebarMenuItem icon="cog" iconType="solid">
-            Setting
+            Thiết lập
           </CDBSidebarMenuItem>
           <CDBSidebarMenuItem icon="info-circle" iconType="solid">
-            Help
+            Hỗ trợ
           </CDBSidebarMenuItem>
         </CDBSidebarMenu>
       </CDBSidebarContent>
       <CDBSidebarFooter>
         <CDBSidebarMenuItem icon="sign-out-alt" iconType="solid">
-          Log out
+          Đăng xuất
         </CDBSidebarMenuItem>
       </CDBSidebarFooter>
     </CDBSidebar>
