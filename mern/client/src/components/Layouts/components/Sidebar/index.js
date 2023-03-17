@@ -42,9 +42,11 @@ function Sidebar() {
           <Link to="/dashboard">
             <CDBSidebarMenuItem icon="th-large">Dashboard</CDBSidebarMenuItem>
           </Link>
-          <CDBSidebarMenuItem icon="laptop">
-            Devices and Sensors
-          </CDBSidebarMenuItem>
+          <Link to="/devices">
+            <CDBSidebarMenuItem icon="laptop">
+              Devices and Sensors
+            </CDBSidebarMenuItem>
+          </Link>
           <CDBSidebarMenuItem icon="kaaba" iconType="solid">
             Rooms
           </CDBSidebarMenuItem>

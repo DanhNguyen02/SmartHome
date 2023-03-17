@@ -9,14 +9,16 @@ import Profile from "../pages/User/Profile";
 import Rooms from "../pages/History/Rooms";
 import Sensors from "../pages/History/Sensors";
 import SensorHistory from "../pages/History/SensorHistory";
+import Devices from "../pages/Devices";
 
 // Not Required Login
 // layout:null --> No Layout
 const publicRoutes = [
-  { path: "/dashboard", component: Dashboard, layout: DefaultLayout },
   { path: "/", component: Login, layout: null },
   { path: "/login", component: Login, layout: null },
   { path: "/register", component: Register, layout: null },
+  { path: "/dashboard", component: Dashboard, layout: DefaultLayout },
+  { path: "/devices", component: Devices, layout: DefaultLayout },
   { path: "/profile", component: Profile, layout: DefaultLayout },
   { path: "/history", component: Rooms, layout: DefaultLayout },
   { path: "/history/room", component: Sensors, layout: DefaultLayout },
