@@ -24,8 +24,7 @@ const SmartHomeImage = () => {
             <img
                 alt="Smart home"
                 src={pic}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
         </Box>
     )
 }
@@ -87,6 +86,7 @@ const Field = (props) => {
         'phone': <PhoneOutlined/>,
         'address': <HomeOutlined/>
     }
+    
     return (
         <TextField
             margin="normal"
@@ -114,18 +114,21 @@ const Field = (props) => {
     )
 }
 
-const Title = () => {
+const Title = (props) => {
+    let firstLine =  "Welcome to";
+    let secondLine = "Smart Home";
+    if (props.fullname) {
+        firstLine = "Welcome";
+        secondLine = props.fullname;
+    }
+    
     return (
         <>
             <Typography component="h1" variant="h5">
-                Welcome to
+                {firstLine}
             </Typography>
-            <Typography component="h1" variant="h5"
-                        sx={{
-                            color: '#6C63FF',
-                            fontWeight: 'bold',
-                        }}>
-                Smart Home
+            <Typography component="h1" variant="h5" sx={{ color: '#6C63FF', fontWeight: 'bold'}}>
+                {secondLine}
             </Typography>
         </> 
     )

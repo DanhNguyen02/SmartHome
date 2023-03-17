@@ -102,10 +102,10 @@ export default function PrimarySearchAppBar() {
           to="/profile"
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          Profile
+          Thông tin cá nhân
         </Link>
       </MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Tài khoản của tôi</MenuItem>
     </Menu>
   );
 
@@ -136,7 +136,7 @@ export default function PrimarySearchAppBar() {
         >
           <AccountCircle />
         </IconButton>
-        <p>Profile</p>
+        <p>Thông tin cá nhân</p>
       </MenuItem>
       <MenuItem>
         <IconButton
@@ -148,7 +148,7 @@ export default function PrimarySearchAppBar() {
             <NotificationsIcon />
           </Badge>
         </IconButton>
-        <p>Notifications</p>
+        <p>Thông báo</p>
       </MenuItem>
     </Menu>
   );
@@ -165,13 +165,13 @@ export default function PrimarySearchAppBar() {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Search…"
+              placeholder="Tìm kiếm…"
               inputProps={{ "aria-label": "search" }}
             />
           </Search>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <p style={{ marginTop: "15px" }}>Hello, {Username}</p>
+            <p style={{ marginTop: "15px" }}>Xin chào, {Username}</p>
             <IconButton
               size="large"
               edge="end"

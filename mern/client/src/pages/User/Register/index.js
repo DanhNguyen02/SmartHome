@@ -30,7 +30,7 @@ const PolicyCheckbox = () => {
     )
 }
 
-export default function Register() {
+export default function Page() {
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
