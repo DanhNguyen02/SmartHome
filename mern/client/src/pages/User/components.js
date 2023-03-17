@@ -115,10 +115,10 @@ const Field = (props) => {
 }
 
 const Title = (props) => {
-    let firstLine =  "Welcome to";
-    let secondLine = "Smart Home";
+    let firstLine =  "Chào mừng đến với";
+    let secondLine = "Nhà Thông Minh";
     if (props.fullname) {
-        firstLine = "Welcome";
+        firstLine = "Trang cá nhân của";
         secondLine = props.fullname;
     }
     
@@ -158,13 +158,13 @@ const AuthButton = (props) => {
 const DirectPage = (props) => {
     const PageMapping = {
         'login': {
-            'text': 'Already have account?',
-            'link': 'Register',
+            'text': 'Chưa có tài khoản?',
+            'link': 'Đăng ký',
             'url': '/register'
         },
         'register': {
-            'text': 'Don\'t have an account?',
-            'link': 'Login',
+            'text': 'Đã có tài khoản?',
+            'link': 'Đăng nhập',
             'url': '/login'
         }
     }

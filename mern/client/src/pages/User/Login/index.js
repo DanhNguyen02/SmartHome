@@ -21,12 +21,12 @@ const AltOption = () => {
             <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <FormControlLabel
                     control={<Checkbox value="remember" color="primary" />}
-                    label="Remember me"
+                    label="Ghi nhớ"
                     sx={{ '& .MuiFormControlLabel-label': { fontWeight: 'bold', fontSize: 14 }, textAlign: 'left' }}/>
             </Grid>
             <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Link href="#" sx={{ color: '#6C63FF', fontSize: 14 }}>
-                    Forgot password?
+                    Quên mật khẩu?
                 </Link>
             </Grid>
         </Grid>
@@ -63,10 +63,10 @@ export default function Page() {
                         }}>
                         <Title/>
                         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                            <Field type='email' label='Email'/>
-                            <PasswordField type='password' label='Password'/>
+                            <Field type='email' label='Địa chỉ Email'/>
+                            <PasswordField type='password' label='Mật khẩu'/>
                             <AltOption/>
-                            <AuthButton label='Login'/>
+                            <AuthButton label='Đăng nhập'/>
                             <DirectPage page='login'/>
                         </Box>
                     </Box>

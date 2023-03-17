@@ -23,7 +23,7 @@ const PolicyCheckbox = () => {
             control={<Checkbox value="remember" sx={{'& .MuiSvgIcon-root': {color: '#6C63FF'}}}/>}
             label={
                 <Typography variant="body1" sx={{ fontWeight: 'bold' , fontSize: 14}}>
-                I have read and agree to the <Link href="#" underline="always" sx={{ color: '#6C63FF' }}>terms and conditions</Link>
+                Tôi đã đọc và đồng ý với <Link href="#" underline="always" sx={{ color: '#6C63FF' }}>điều khoản và điều kiện</Link>
                 </Typography>
             }/>
         </Grid>
@@ -61,11 +61,11 @@ export default function Page() {
                         }}>
                         <Title/>
                         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                            <Field type='email' label='Email'/>
-                            <PasswordField type='password' label='Password'/>
-                            <PasswordField type='confirm-password' label='Confirm password'/>
+                            <Field type='email' label='Địa chỉ email'/>
+                            <PasswordField type='password' label='Mật khẩu'/>
+                            <PasswordField type='confirm-password' label='Xác nhận mật khẩu'/>
                             <PolicyCheckbox/>
-                            <AuthButton label='Register'/>
+                            <AuthButton label='Đăng ký'/>
                             <DirectPage page='register'/>
                         </Box>
                     </Box>
