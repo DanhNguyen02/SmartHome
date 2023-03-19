@@ -142,27 +142,25 @@ const records = [
 function ChooseSensor() {
   return (
     <>
-      <Grid container className="p-3">
-        <Grid item xs={2}>
+      <Grid container className="px-3 py-1">
+        <Grid item>
           <ListRooms />
         </Grid>
-        <Grid item xs={2} sx={{marginLeft: '21px'}}>
+        <Grid sx={{marginLeft: '21px'}}>
           <ListSensors />
         </Grid>
-      </Grid>
-      <Grid container className="p-3">
-        <Grid item xs={2}>
+        <Grid >
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker sx={{ width: 200, marginLeft: 5}}/>
+          </LocalizationProvider>
+        </Grid>
+        <Grid sx={{marginLeft: '21px'}}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker sx={{ width: 200}}/>
           </LocalizationProvider>
         </Grid>
-        <Grid item xs={2} sx={{marginLeft: '21px'}}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker sx={{ width: 200}}/>
-          </LocalizationProvider>
-        </Grid>
-        <Grid item xs={2}>
-          <Button variant="contained" size="large" sx={{height: 50, marginLeft: '20px'}}>
+        <Grid>
+          <Button variant="contained" size="large" sx={{height: 55, marginLeft: '20px'}}>
             <DownloadIcon />
           </Button>
         </Grid>
@@ -173,7 +171,7 @@ function ChooseSensor() {
 
 function Graph() {
   return (
-    <Box sx={{width: "95%", height: "500px"}}>
+    <Box sx={{width: "95%", height: "400px", marginTop: 5}}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           width={700}
@@ -191,7 +189,7 @@ function Graph() {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="record" stroke="#5A6ACF" activeDot={{ r: 8 }} />
+          <Line type="monotone" dataKey="record" stroke="#5A6ACF" name="Dữ liệu" activeDot={{ r: 8 }} />
         </LineChart>
       </ResponsiveContainer>
     </Box>

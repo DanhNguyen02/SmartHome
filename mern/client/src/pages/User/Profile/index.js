@@ -20,7 +20,7 @@ import {PasswordField,
         Title}
 from '../components';
 
-import pic from '../../../assets/images/HarryMaguire.png';
+import pic from '../../../assets/images/TruongAnhNgoc.jpg';
 
 const ProfilePicture = () => {
     return (
@@ -50,7 +50,7 @@ const ProfilePicture = () => {
                     },
                 }}
                 startIcon={<PhotoCameraOutlined/>}>
-                Change profile picture
+                Đổi ảnh đại diện
             </Button>
         </>
     )
@@ -59,8 +59,16 @@ const ProfilePicture = () => {
 const GenderSelect = () => {
     return (
         <Grid container justifyItems="flex-start">
-            <FormControl margin="normal" sx={{width: 160}}>
-                <InputLabel id="gender-select-label">Gender</InputLabel>
+            <FormControl
+                margin="normal"
+                sx={{width: 160,
+                    '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#6C63FF'
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#6C63FF'
+                    }}}>
+                <InputLabel id="gender-select-label">Giới tính</InputLabel>
                 <Select
                     labelId="gender-select-label"
                     id="gender-select"
@@ -71,11 +79,11 @@ const GenderSelect = () => {
                             <PeopleAlt />
                         </InputAdornment>}>
                     <MenuItem value="null" defaultValue>
-                        <em>Not select</em>
+                        <em>Chưa chọn</em>
                     </MenuItem>
-                    <MenuItem value="male">Male</MenuItem>
-                    <MenuItem value="female">Female</MenuItem>
-                    <MenuItem value="other">Other</MenuItem>
+                    <MenuItem value="male">Nam</MenuItem>
+                    <MenuItem value="female">Nữ</MenuItem>
+                    <MenuItem value="other">Khác</MenuItem>
                 </Select>
             </FormControl>
         </Grid>
@@ -85,43 +93,41 @@ const GenderSelect = () => {
 const BirthSelect = () => {
     return (
         <Grid container justifyItems="flex-start">
-            <FormControl margin="normal">
+            <FormControl
+                margin="normal"
+                sx={{
+                    '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#6C63FF'
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#6C63FF'
+                    }
+                }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker label="Date of birth"/>
+                    <DatePicker label="Ngày sinh"/>
                 </LocalizationProvider>
             </FormControl>
         </Grid>
     )
 }
 
-const BottomButton = (props) => {
-    const TypeMapping = {
-        'cancel': {
-            'label': 'Cancel',
-            'backgroundColor': 'red'
-        },
-        'confirm': {
-            'label': 'Confirm',
-            'backgroundColor': '#6C63FF'
-        },
-    }
-
+const ConfirmButton = () => {
     return (
         <Button
-            type={props.type}
+            type="submit"
             variant="contained"
             sx = {{
-                mr: 4,
+                mr: 6,
                 p: 2,
-                backgroundColor: TypeMapping[props.type]['backgroundColor'],
+                backgroundColor: '#6C63FF',
                 fontSize: 12,
                 width: 120,
                 '&:hover': {
                     backgroundColor: 'white',
-                    color: TypeMapping[props.type]['backgroundColor'],
+                    color: '#6C63FF',
                 },
             }}>
-            {TypeMapping[props.type]['label']}
+            Xác nhận
         </Button>
     )
 }
@@ -140,7 +146,7 @@ export default function Page() {
         <Grid container spacing={2} sx={{ alignItems: 'center', mt: 4, pl: 8, '& > .MuiGrid-item': {pl: 0, pt: 0}}}>
             <Grid item xs={6} spacing={2}>
                 <Grid item xs={12}>
-                    <Title fullname="Harry Maguire"/>
+                    <Title fullname="Trương Anh Ngọc"/>
                 </Grid>
                 <Grid item xs={12} sx={{display: 'flex', alignItems: 'center', mt: 2}}>
                     <ProfilePicture/>
@@ -149,20 +155,19 @@ export default function Page() {
             <Box component="form" onSubmit={handleSubmit} noValidate sx={{my: 4}}>
                 <Grid container spacing={2} item xs={12} sx={{'& > .MuiGrid-item': {pt: 0}}}>
                     <Grid item xs={6} sx={{px: 12}}>
-                        <Field type='fullname' label='Full name'/>
-                        <Field type='email' label='Email'/>
-                        <PasswordField type='password' label='Password'/>
-                        <PasswordField type='confirm-password' label='Confirm password'/>
+                        <Field type='fullname' label='Họ và tên'/>
+                        <Field type='email' label='Địa chỉ email'/>
+                        <PasswordField type='password' label='Mật khẩu'/>
+                        <PasswordField type='confirm-password' label='Xác nhận mật khẩu'/>
                     </Grid>
                     <Grid item xs={6} sx={{px: 12}}>
                         <GenderSelect/>
                         <BirthSelect/>
-                        <Field type='phone' label='Phone number'/>
-                        <Field type='address' label='Address'/>
+                        <Field type='phone' label='Số điện thoại'/>
+                        <Field type='address' label='Địa chỉ'/>
                     </Grid>
                     <Grid item xs={6} sx={{mt: 4, display: 'flex', px: 12}}>
-                        <BottomButton type='cancel'/>
-                        <BottomButton type='confirm'/>
+                        <ConfirmButton/>
                     </Grid>
                 </Grid>
             </Box>
