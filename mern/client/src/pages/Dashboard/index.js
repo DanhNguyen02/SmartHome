@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import {
   Typography,
@@ -9,7 +10,7 @@ import {
   Paper,
   Grid,
   Switch,
-  Slider
+  Slider,
 } from "@mui/material";
 import {
   LineChart,
@@ -28,8 +29,6 @@ import SensorIcon from "../../assets/images/sensorIcon.png";
 
 const MARGIN_LEFT = "20px";
 const ROOM = "Phòng ngủ chính";
-const TEMP = "26";
-const HUMI = "68";
 const today = new Date().toLocaleDateString();
 var timewithsec = new Date().toLocaleTimeString();
 const time = timewithsec.substring(0, timewithsec.length - 6);
@@ -105,8 +104,48 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 function Dashboard() {
-  const [fanVolume, setFanVolume] = React.useState(0);
-  const [lightValue, setLightValue] = React.useState(0);
+  const [TEMP, setTemp] = useState([]);
+  const [HUMI, setHumi] = useState([]);
+
+  useEffect(() => {
+    let timer;
+    timer = setInterval(() => {
+      const sec = new Date().getSeconds();
+      if (sec % 6) return;
+      fetchTemp();
+      fetchHumi();
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  async function fetchTemp() {
+    const response = await fetch(`http://localhost:5000/temp/`);
+
+    if (!response.ok) {
+      const message = `An error occured: ${response.statusText}`;
+      window.alert(message);
+      return;
+    }
+
+    const record = await response.json();
+    setTemp(record.message);
+  }
+
+  async function fetchHumi() {
+    const response = await fetch(`http://localhost:5000/humi/`);
+
+    if (!response.ok) {
+      const message = `An error occured: ${response.statusText}`;
+      window.alert(message);
+      return;
+    }
+
+    const record = await response.json();
+    setHumi(record.message);
+  }
+
   return (
     <>
       <Breadcrumbs aria-label="breadcrumb" style={{ margin: MARGIN_LEFT }}>
