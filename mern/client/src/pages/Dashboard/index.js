@@ -104,6 +104,9 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 function Dashboard() {
+  const [lightValue, setLightValue] = useState();
+  const [fanVolume, setFanVolume] = useState();
+
   const [TEMP, setTemp] = useState([]);
   const [HUMI, setHumi] = useState([]);
 
