@@ -137,6 +137,7 @@ const Title = (props) => {
 const AuthButton = (props) => {
     return (
         <Button
+            href={props.type === 'login' ? '/dashboard' : '/login'}
             type="submit"
             fullWidth
             variant="contained"
@@ -150,7 +151,7 @@ const AuthButton = (props) => {
                     color: '#6C63FF',
                 },
             }}>
-            {props.label}
+            {props.type === 'login' ? 'Đăng nhập' : 'Đăng ký'}
         </Button>
     )
 }

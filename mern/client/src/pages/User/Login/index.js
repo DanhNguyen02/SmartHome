@@ -66,7 +66,7 @@ export default function Page() {
                             <Field type='email' label='Địa chỉ Email'/>
                             <PasswordField type='password' label='Mật khẩu'/>
                             <AltOption/>
-                            <AuthButton label='Đăng nhập'/>
+                            <AuthButton type='login'/>
                             <DirectPage page='login'/>
                         </Box>
                     </Box>

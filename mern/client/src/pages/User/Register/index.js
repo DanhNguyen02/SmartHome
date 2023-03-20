@@ -65,7 +65,7 @@ export default function Page() {
                             <PasswordField type='password' label='Mật khẩu'/>
                             <PasswordField type='confirm-password' label='Xác nhận mật khẩu'/>
                             <PolicyCheckbox/>
-                            <AuthButton label='Đăng ký'/>
+                            <AuthButton type='register'/>
                             <DirectPage page='register'/>
                         </Box>
                     </Box>
