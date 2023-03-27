@@ -15,11 +15,19 @@ import AddIcon from '@mui/icons-material/Add';
 import { Dropdown } from 'react-bootstrap';
 import rooms from '../../assets/data/rooms.json';
 import Logo from '../../assets/images/logo.png';
+import { useForm } from 'react-hook-form';
 
 function Rooms() {
+  const { register, getValues, setValue } = useForm();
+
   const [openAdd, setOpenAdd] = useState(false);
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => setOpenAdd(false);
+  function handleSubmitAdd() {
+    setOpenAdd(false);
+    let roomName = getValues().roomName;
+    let description = getValues().description;
+  }
 
   const [openEdit, setOpenEdit] = useState(false);
   const handleOpenEdit = () => setOpenEdit(true);
@@ -35,6 +43,7 @@ function Rooms() {
     boxShadow: 24,
     p: 4,
   };
+
   function AddRoomBox() {
     return (
       <Modal
@@ -55,6 +64,7 @@ function Rooms() {
             multiline
             maxRows={2}
             sx={{width: '100%', paddingBottom: '10px'}}
+            {...register("roomName")}
           />
           <Typography variant="h6">
             Mô tả
@@ -64,6 +74,7 @@ function Rooms() {
             multiline
             rows={10}
             sx={{width: '100%'}}
+            {...register("description")}
           />
           <Grid container spacing={2} sx={{marginTop: '10px'}}>
             <Grid item xs={4}></Grid>
@@ -82,7 +93,7 @@ function Rooms() {
               </Button>
             </Grid>
             <Grid item xs={2}>
-              <Button variant='contained' onClick={handleCloseAdd}>
+              <Button variant='contained' onClick={handleSubmitAdd}>
                 Xác nhận
               </Button>
             </Grid>
@@ -93,7 +104,6 @@ function Rooms() {
     )
   }
   function EditRoomBox(props) {
-    console.log(props)
     return (
       <Modal
         open={openEdit}
