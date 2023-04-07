@@ -43,4 +43,13 @@ module.exports = {
         });
     });
   },
+
+  publish: function (topic, data) {
+    client.publish(topic, data, { qos: 0, retain: false }, (error) => {
+      console.log("Published to topic " + topic + " data: " + data);
+      if (error) {
+        console.error(error);
+      }
+    });
+  },
 };
