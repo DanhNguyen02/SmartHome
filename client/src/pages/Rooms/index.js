@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Button,
@@ -13,25 +13,123 @@ import {
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import { Dropdown } from 'react-bootstrap';
-import rooms from '../../assets/data/rooms.json';
 import Logo from '../../assets/images/logo.png';
 import { useForm } from 'react-hook-form';
 
 function Rooms() {
   const { register, getValues, setValue } = useForm();
+  const [listRooms, setListRooms] = useState([]);
 
   const [openAdd, setOpenAdd] = useState(false);
   const handleOpenAdd = () => setOpenAdd(true);
-  const handleCloseAdd = () => setOpenAdd(false);
-  function handleSubmitAdd() {
+  const handleCloseAdd = () => {
+    setValue("name","");
+    setValue("description","");
     setOpenAdd(false);
-    let roomName = getValues().roomName;
+  }
+  function handleSubmitAdd(event) {
+    setOpenAdd(false);
+    let name = getValues().name;
     let description = getValues().description;
+    setValue("name","")
+    setValue("description","")
+    event.preventDefault();
+    fetch('http://localhost:5000/room', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name, description })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data added:', data);
+      })
+      .catch(error => {
+        console.log(JSON.stringify({ name, description }))
+        console.error('Error adding data:', error);
+      });
+  }
+
+  useEffect(() => {
+    let timer;
+    timer = setInterval(() => {
+      const sec = new Date().getSeconds();
+      if (sec % 10) return;
+      fetchListRooms();
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  async function fetchListRooms() {
+    const response = await fetch("http://localhost:5000/rooms");
+
+    if (!response.ok) {
+      const message = `An error occured: ${response.statusText}`;
+      window.alert(message);
+      return;
+    }
+
+    const record = await response.json();
+    setListRooms(record)
   }
 
   const [openEdit, setOpenEdit] = useState(false);
-  const handleOpenEdit = () => setOpenEdit(true);
+  const handleOpenEdit = (e) => {
+    setOpenEdit(true);
+    let id = e.target.getAttribute("id"),
+        name = e.target.getAttribute("name"),
+        description = e.target.getAttribute("description")
+    setValue("id", id)
+    setValue("name", name)
+    setValue("description", description)
+  }
   const handleCloseEdit = () => setOpenEdit(false);
+  function handleSubmitEdit(event) {
+    setOpenEdit(false);
+    let id = getValues().id;
+    let name = getValues().name;
+    let description = getValues().description;
+    event.preventDefault();
+    console.log(JSON.stringify({ id, name, description }))
+    fetch('http://localhost:5000/editroom', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id, name, description })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data added:', data);
+      })
+      .catch(error => {
+        console.error('Error adding data:', error);
+      });
+  }
+
+  function handleDelete(event) {
+    let id = event.target.getAttribute("id");
+    console.log(JSON.stringify({ id }));
+    event.preventDefault();
+    fetch('http://localhost:5000/deleteroom', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data added:', data);
+      })
+      .catch(error => {
+        console.error('Error adding data:', error);
+      });
+  }
+
   const style = {
     position: 'absolute',
     top: '50%',
@@ -64,7 +162,7 @@ function Rooms() {
             multiline
             maxRows={2}
             sx={{width: '100%', paddingBottom: '10px'}}
-            {...register("roomName")}
+            {...register("name")}
           />
           <Typography variant="h6">
             Mô tả
@@ -103,7 +201,7 @@ function Rooms() {
       </Modal>
     )
   }
-  function EditRoomBox(props) {
+  function EditRoomBox() {
     return (
       <Modal
         open={openEdit}
@@ -123,7 +221,7 @@ function Rooms() {
             multiline
             maxRows={2}
             sx={{width: '100%', paddingBottom: '10px'}}
-            defaultValue={props.name}
+            {...register("name")}
           />
           <Typography variant="h6">
             Mô tả
@@ -133,7 +231,7 @@ function Rooms() {
             multiline
             rows={10}
             sx={{width: '100%'}}
-            defaultValue={props.description}
+            {...register("description")}
           />
           <Grid container spacing={2} sx={{marginTop: '10px'}}>
             <Grid item xs={4}></Grid>
@@ -152,7 +250,7 @@ function Rooms() {
               </Button>
             </Grid>
             <Grid item xs={2}>
-              <Button variant='contained' onClick={handleCloseEdit}>
+              <Button variant='contained' onClick={handleSubmitEdit}>
                 Xác nhận
               </Button>
             </Grid>
@@ -163,7 +261,7 @@ function Rooms() {
     )
   }
   function ListRooms() {
-    return(rooms.map((room) => (
+    return(listRooms.map((room) => (
       <Card sx={{ display: 'flex', margin: 4, boxShadow: '1px 1px 1px 1px grey', position: 'relative' }}>
         <CardMedia
           component="img"
@@ -184,17 +282,19 @@ function Rooms() {
         <Dropdown style={{position: 'absolute', right: 0}}>
           <Dropdown.Toggle variant="primary" id="dropdown-basic" size="sm"/>
           <Dropdown.Menu>
-            <Dropdown.Item onClick={handleOpenEdit}>
+            <Dropdown.Item 
+              id={room._id}
+              name={room.name} 
+              description={room.description} 
+              onClick={handleOpenEdit}>
               Chỉnh sửa
             </Dropdown.Item>
-            <Dropdown.Item>Xóa</Dropdown.Item>
+            <Dropdown.Item
+              id={room._id}
+              onClick={handleDelete}
+            >Xóa</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        <EditRoomBox 
-          id={room.id}
-          name={room.name}
-          description={room.description} 
-        />
       </Card>
     )))
   }
@@ -207,6 +307,7 @@ function Rooms() {
         Tạo phòng mới
       </Button>
       <AddRoomBox />
+      <EditRoomBox />
       <ListRooms />
     </>
   );

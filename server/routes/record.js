@@ -37,4 +37,42 @@ recordRoutes.route("/humi").get(function (req, res) {
     });
 });
 
+recordRoutes.route("/room").post(function (req, res) {
+  let db_connect = dbo.getDb("smarthome");
+  var message = {
+    name: req.body.name,
+    description: req.body.description
+  }
+  db_connect
+    .collection("room")
+    .insertOne(message, function (err, res) {
+      if (err) throw err;
+    })
+});
+
+recordRoutes.route("/rooms").get(function (req, res) {
+  let db_connect = dbo.getDb("smarthome");
+  db_connect
+    .collection("room")
+    .find()
+    .toArray(function (err, result) {
+      if (err) throw err;
+      res.json(result);
+    });
+})
+
+recordRoutes.route("/editroom").post(function (req, res) {
+  let db_connect = dbo.getDb("smarthome");
+  db_connect
+    .collection("room")
+    .updateOne( { _id: ObjectId(req.body.id) }, { $set: { name: req.body.name, description: req.body.description}} )
+})
+
+recordRoutes.route("/deleteroom").post(function (req, res) {
+  let db_connect = dbo.getDb();
+  db_connect
+    .collection("room")
+    .deleteOne( { _id: ObjectId(req.body.id) } )
+})
+
 module.exports = recordRoutes;
