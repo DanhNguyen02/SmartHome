@@ -5,9 +5,9 @@ import {Grid,
         Link,
         Checkbox,
         Container,
-        FormControlLabel,}
+        FormControlLabel,
+        FormHelperText}
     from '@mui/material';
-
 import {PasswordField,
         SmartHomeImage,
         Field,
@@ -19,35 +19,25 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 
-const handleSubmit = async (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    try {
-        const response = await axios.post('http://localhost:5000/api/auth/register', {
-            email: data.get('email'),
-            password: data.get('password'),
-            confirmPassword: data.get('confirm-password'),
-        });
-
-        console.log(response.data);
-        // Thực hiện chuyển hướng đến trang đăng nhập
-    } catch (error) {
-        console.error(error);
-        // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
-    }
-};
-
-
-const PolicyCheckbox = () => {
+const PolicyCheckbox = ({formik}) => {
     return (
         <Grid container sx={{ alignItems: 'center'}}>
             <FormControlLabel
-            control={<Checkbox value="remember" sx={{'& .MuiSvgIcon-root': {color: '#6C63FF'}}}/>}
-            label={
-                <Typography variant="body1" sx={{ fontWeight: 'bold' , fontSize: 14}}>
-                Tôi đã đọc và đồng ý với <Link href="#" underline="always" sx={{ color: '#6C63FF' }}>điều khoản và điều kiện</Link>
-                </Typography>
-            }/>
+                control={
+                    <Checkbox 
+                        checked={formik.values.policy} 
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange} 
+                        name="policy"  
+                        sx={{'& .MuiSvgIcon-root': {color: '#6C63FF'}}}/>}
+                label={
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' , fontSize: 14}}>
+                    Tôi đã đọc và đồng ý với <Link href="#" underline="always" sx={{ color: '#6C63FF' }}>điều khoản và điều kiện</Link>
+                    </Typography>
+                }/>
+            {formik.touched.policy && formik.errors.policy ? (
+                <FormHelperText sx={{color: '#d32f2f'}}>{formik.errors.policy}</FormHelperText>
+            ) : null}
         </Grid>
     )
 }
@@ -75,8 +65,7 @@ export default function Page() {
                 .required('Xác nhận mật khẩu không được để trống'),
             policy: Yup
                 .boolean()
-                .oneOf([true], 'You must accept the terms and conditions')
-                .required('Required')
+                .oneOf([true], 'Bạn phải đồng ý với điều khoản và điều kiện để tiếp tục sử dụng')
         }),
         onSubmit: async (values) => {
             try {
@@ -101,7 +90,7 @@ export default function Page() {
                   px: 16,
                   pt: 4,
               }}>
-            <Grid lg={6}>
+            <Grid lg={6} sx={{ mb: 12 }}>
                 <SmartHomeImage/>
             </Grid>
             <Grid lg={6}>
@@ -114,11 +103,11 @@ export default function Page() {
                             alignItems: 'center',
                         }}>
                         <Title/>
-                        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                        <Box component="form" noValidate sx={{ mt: 1 }}>
                             <Field type="email" label="Địa chỉ email" formik={formik}/>
                             <PasswordField type='password' label='Mật khẩu' formik={formik}/>
                             <PasswordField type='confirmPassword' label='Xác nhận mật khẩu' formik={formik}/>
-                            <PolicyCheckbox/>
+                            <PolicyCheckbox formik={formik}/>
                             <AuthButton type='register'/>
                             <DirectPage page='register'/>
                         </Box>

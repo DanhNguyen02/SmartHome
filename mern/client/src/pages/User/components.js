@@ -29,7 +29,7 @@ const SmartHomeImage = () => {
     )
 }
 
-const PasswordField = ({ formik, type, label }) => {
+const PasswordField = ({formik, type, label}) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleClickShowPassword = () => {
@@ -84,7 +84,7 @@ const PasswordField = ({ formik, type, label }) => {
     )
 }
 
-const Field = ({ formik=null, type, label }) => {
+const Field = ({formik=null, type, label}) => {
     const IconMapping = {
         'email': <EmailOutlined/>,
         'fullname': <AccountCircleOutlined/>,
