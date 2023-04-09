@@ -29,7 +29,7 @@ const SmartHomeImage = () => {
     )
 }
 
-const PasswordField = (props) => {
+const PasswordField = ({formik, type, label}) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleClickShowPassword = () => {
@@ -45,11 +45,11 @@ const PasswordField = (props) => {
             margin="normal"
             required
             fullWidth
-            name={props.type}
-            label={props.label}
+            name={type}
+            label={label}
             type={showPassword ? 'text' : 'password'}
-            id={props.type}
-            autoComplete="current-password"
+            id={type}
+            autoComplete={type}
             InputProps={{
                 startAdornment: (
                     <InputAdornment position="start">
@@ -68,6 +68,11 @@ const PasswordField = (props) => {
                     </InputAdornment>
                 ),
             }}
+            error={formik.touched[type] && Boolean(formik.errors[type])}
+            helperText={formik.touched[type] && formik.errors[type]}
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values[type]}
             sx={{
                 '& .MuiInputLabel-root.Mui-focused': {
                     color: '#6C63FF',
@@ -79,30 +84,34 @@ const PasswordField = (props) => {
     )
 }
 
-const Field = (props) => {
+const Field = ({formik=null, type, label}) => {
     const IconMapping = {
         'email': <EmailOutlined/>,
         'fullname': <AccountCircleOutlined/>,
         'phone': <PhoneOutlined/>,
         'address': <HomeOutlined/>
-    }
-    
+    };
     return (
         <TextField
             margin="normal"
             required
             fullWidth
-            id={props.type}
-            label={props.label}
-            name={props.type}
-            autoComplete={props.type}
+            id={type}
+            label={label}
+            name={type}
+            autoComplete={type}
             InputProps={{
                 startAdornment: (
                     <InputAdornment position="start">
-                        {IconMapping[props.type]}
+                    {IconMapping[type]}
                     </InputAdornment>
                 ),
             }}
+            error={formik?.touched[type] && Boolean(formik?.errors[type])}
+            helperText={formik?.touched[type] && formik?.errors[type]}
+            onBlur={formik?.handleBlur}
+            onChange={formik?.handleChange}
+            value={formik?.values[type]}
             sx={{
                 '& .MuiInputLabel-root.Mui-focused': {
                     color: '#6C63FF',
@@ -111,8 +120,8 @@ const Field = (props) => {
                     borderColor: '#6C63FF',
                 },
             }}/>
-    )
-}
+    );
+};
 
 const Title = (props) => {
     let firstLine =  "Chào mừng đến với";
@@ -137,7 +146,6 @@ const Title = (props) => {
 const AuthButton = (props) => {
     return (
         <Button
-            href={props.type === 'login' ? '/dashboard' : '/login'}
             type="submit"
             fullWidth
             variant="contained"

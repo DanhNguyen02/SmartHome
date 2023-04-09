@@ -82,6 +82,30 @@ const Data = [
     },
 ]
 
+const ModalButton = (props) => {
+    const bgcolor = props.type === 'update' ? '#6C63FF' : 'Red'
+    return (
+        <Button
+            type="button"                   
+            variant="contained"
+            sx = {{
+                mt: 3,
+                mx: 2,
+                p: 1,
+                width: 100,
+                borderRadius: '15px',
+                backgroundColor: bgcolor,
+                fontSize: 12,
+                '&:hover': {
+                    backgroundColor: 'white',
+                    color: bgcolor,
+                },
+            }}>
+            {props.type === 'update' ? 'Cập nhật' : 'Xóa'}
+        </Button>
+    )
+}
+
 const SwitchItem = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -253,42 +277,8 @@ const SwitchItem = (props) => {
                                 </FormControl>
                             </Box>
                             <Box sx={{my: 1, display: 'flex', justifyContent: 'center'}}>
-                                <Button
-                                    type="button"                   
-                                    variant="contained"
-                                    sx = {{
-                                        mt: 3,
-                                        mx: 2,
-                                        p: 1,
-                                        width: 100,
-                                        borderRadius: '15px',
-                                        backgroundColor: 'red',
-                                        fontSize: 12,
-                                        '&:hover': {
-                                            backgroundColor: 'white',
-                                            color: 'red',
-                                        },
-                                    }}>
-                                    Xóa
-                                </Button>
-                                <Button
-                                    type="submit"                   
-                                    variant="contained"
-                                    sx = {{
-                                        mt: 3,
-                                        mx: 2,
-                                        p: 1,
-                                        width: 100,
-                                        borderRadius: '15px',
-                                        backgroundColor: '#6C63FF',
-                                        fontSize: 12,
-                                        '&:hover': {
-                                            backgroundColor: 'white',
-                                            color: '#6C63FF',
-                                        },
-                                    }}>
-                                    Cập nhật
-                                </Button>
+                                <ModalButton type='delete'/>
+                                <ModalButton type='update'/>
                             </Box>
                         </FormControl>
                     </Box>
