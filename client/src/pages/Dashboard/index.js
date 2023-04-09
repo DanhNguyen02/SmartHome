@@ -22,7 +22,7 @@ import {
   YAxis,
 } from "recharts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGear } from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faGear } from "@fortawesome/free-solid-svg-icons";
 import LightIcon from "../../assets/images/lightIcon.png";
 import FanIcon from "../../assets/images/fanIcon.png";
 import SensorIcon from "../../assets/images/sensorIcon.png";
@@ -75,14 +75,14 @@ const LIGHT = [
     name: "Đèn trần 1",
     toggle: false,
     brightness: 0,
-  }
+  },
 ];
 
 const FAN = [
   {
     name: "Quạt 1",
     toggle: false,
-  }
+  },
 ];
 
 const SENSOR = [
@@ -104,8 +104,49 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 function Dashboard() {
-  const [lightValue, setLightValue] = useState();
-  const [fanVolume, setFanVolume] = useState();
+  const [lightValue, setLightValue] = useState(false);
+  const [fanVolume, setFanVolume] = useState(0);
+
+  async function onChangeLight(e) {
+    e.preventDefault();
+    setLightValue(!lightValue);
+    let data = lightValue === true ? "0" : "1";
+    console.log(data);
+    let newData = {
+      topic: "haiche198/feeds/yolo-led",
+      data: data,
+    };
+    await fetch("http://localhost:5000/light/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newData),
+    }).catch((error) => {
+      window.alert(error);
+      return;
+    });
+  }
+
+  async function onChangeFan(e, val) {
+    e.preventDefault();
+    setFanVolume(val);
+    console.log(fanVolume);
+    let newData = {
+      topic: "haiche198/feeds/yolo-fan",
+      data: String(fanVolume),
+    };
+    await fetch("http://localhost:5000/fan/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newData),
+    }).catch((error) => {
+      window.alert(error);
+      return;
+    });
+  }
 
   const [TEMP, setTemp] = useState([]);
   const [HUMI, setHumi] = useState([]);
@@ -300,7 +341,12 @@ function Dashboard() {
                       }}
                     />
                     <p style={{ marginTop: "4px" }}>{light.name}</p>
-                    <Switch sx={{ position: "absolute", right: "0" }} onChange={(e,val) => setLightValue(val)}/>
+                    <Switch
+                      sx={{ position: "absolute", right: "0" }}
+                      onChange={(e) => {
+                        onChangeLight(e);
+                      }}
+                    />
                   </Box>
                 </Box>
               ))}
@@ -334,14 +380,16 @@ function Dashboard() {
                     {/* <Switch sx={{ position: "absolute", right: "0" }} /> */}
                     <Slider
                       aria-label="Temperature"
-                      defaultValue={50}
+                      defaultValue={0}
                       valueLabelDisplay="auto"
                       step={25}
                       marks
                       min={0}
                       max={100}
-                      sx={{position: "absolute", right: "0", width: '60%'}}
-                      onChange={(e,val) => {setFanVolume(val)}}
+                      sx={{ position: "absolute", right: "0", width: "60%" }}
+                      onChange={(e, val) => {
+                        onChangeFan(e, val);
+                      }}
                     />
                   </Box>
                 </Box>
