@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {Grid,
         Box,
         Link,
         Checkbox,
         Container,
-        FormControlLabel,}
+        FormControlLabel,
+        Typography}
     from '@mui/material';
 import {PasswordField,
         SmartHomeImage,
@@ -36,6 +38,8 @@ const AltOption = () => {
 }
 
 export default function Page() {
+    const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState(null);
     const formik = useFormik({
         initialValues: {
             email: '',
@@ -53,27 +57,31 @@ export default function Page() {
         }),
         onSubmit: async (values) => {
             try {
-              const response = await axios.post('http://localhost:5000/api/auth/login', {
-                email: values.email,
-                password: values.password,
-                confirmPassword: values.confirmPassword,
-              });
-      
-              console.log(response.data);
-              // Thực hiện chuyển hướng đến trang đăng nhập
+                await axios.post('http://localhost:5000/api/auth/login', {
+                    email: values.email,
+                    password: values.password,
+            });
+            navigate('/dashboard');
             } catch (error) {
-              console.error(error);
-              // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+                console.error(error);
+                if (error.response.data.errors) {
+                    error.response.data.errors.forEach((err) => {
+                        if (err.msg === 'Tài khoản không tồn tại') {
+                            setErrorMessage(err.msg);
+                        }
+                    });
+                }
             }
         },
     });
+    useEffect(() => {setErrorMessage(null)}, [formik.values.email, formik.values.password]);
     return (
-        <Grid container spacing={2}
-              sx={{
-                  alignItems: 'center',
-                  px: 16,
-                  pt: 4,
-              }}>
+        <Grid
+            container spacing={2}
+            sx={{
+                alignItems: 'center',
+                px: 16,
+            }}>
             <Grid sm={6}>
                 <SmartHomeImage/>
             </Grid>
@@ -86,10 +94,11 @@ export default function Page() {
                             alignItems: 'center',
                         }}>
                         <Title/>
-                        <Box component="form" noValidate sx={{ mt: 1 }}>
+                        <Box component="form" noValidate onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
                             <Field type='email' label='Địa chỉ Email' formik={formik}/>
                             <PasswordField type='password' label='Mật khẩu' formik={formik}/>
                             <AltOption/>
+                            {errorMessage && <Typography color="error" variant="caption">{errorMessage}</Typography>}
                             <AuthButton type='login'/>
                             <DirectPage page='login'/>
                         </Box>

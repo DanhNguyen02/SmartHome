@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {Grid,
         Box,
         Typography,
@@ -6,8 +7,12 @@ import {Grid,
         Checkbox,
         Container,
         FormControlLabel,
-        FormHelperText}
+        FormHelperText,
+        Alert,
+        Modal,
+        IconButton }
     from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import {PasswordField,
         SmartHomeImage,
         Field,
@@ -43,6 +48,9 @@ const PolicyCheckbox = ({formik}) => {
 }
 
 export default function Page() {
+    const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [showModal, setShowModal] = useState(false);
     const formik = useFormik({
         initialValues: {
             email: '',
@@ -69,51 +77,99 @@ export default function Page() {
         }),
         onSubmit: async (values) => {
             try {
-              const response = await axios.post('http://localhost:5000/api/auth/register', {
-                email: values.email,
-                password: values.password,
-                confirmPassword: values.confirmPassword,
-              });
-      
-              console.log(response.data);
-              // Thực hiện chuyển hướng đến trang đăng nhập
+                await axios.post('http://localhost:5000/api/auth/register', {
+                    email: values.email,
+                    password: values.password,
+                    confirmPassword: values.confirmPassword,
+            });
+            setShowModal(true);
             } catch (error) {
-              console.error(error);
-              // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+                console.error(error);
+                if (error.response.data.errors) {
+                    error.response.data.errors.forEach((err) => {
+                        if (err.msg === 'Tài khoản đã tồn tại') {
+                            setErrorMessage(err.msg);
+                        }
+                    });
+                }
             }
         },
     });
+    useEffect(() => {setErrorMessage(null)}, 
+                    [formik.values.email, formik.values.password, formik.values.confirmPassword, formik.values.policy]);    
     return (
-        <Grid container spacing={2}
-              sx={{
-                  alignItems: 'center',
-                  px: 16,
-                  pt: 4,
-              }}>
-            <Grid lg={6} sx={{ mb: 12 }}>
-                <SmartHomeImage/>
-            </Grid>
-            <Grid lg={6}>
-                <Container component="main" maxWidth="xs">
-                    <Box
+        <>
+            <Modal
+                open={showModal}
+                onClose={() => setShowModal(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                <Box sx={{width: '400px',
+                        maxWidth: '80vw',
+                        position: 'fixed',
+                        top: '7%',
+                        bgcolor: 'white',
+                        
+                        borderRadius: '50px',
+                        border: 'none'}}>
+                    <Alert
+                        severity="success"
+                        action={
+                            <IconButton
+                                aria-label="close"
+                                color="inherit"
+                                size="small"
+                                onClick={() => {
+                                    navigate('/login');
+                                }}>
+                                <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                        }
                         sx={{
-                            mt: 10,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
+                            borderRadius: 5
                         }}>
-                        <Title/>
-                        <Box component="form" noValidate sx={{ mt: 1 }}>
-                            <Field type="email" label="Địa chỉ email" formik={formik}/>
-                            <PasswordField type='password' label='Mật khẩu' formik={formik}/>
-                            <PasswordField type='confirmPassword' label='Xác nhận mật khẩu' formik={formik}/>
-                            <PolicyCheckbox formik={formik}/>
-                            <AuthButton type='register'/>
-                            <DirectPage page='register'/>
+                        <strong>Đăng ký thành công!</strong>
+                        <br/>
+                        Bạn có thể đăng nhập để tiếp tục sử dụng              
+                    </Alert>
+                </Box>
+            </Modal>
+            <Grid container spacing={2}
+                sx={{
+                    alignItems: 'center',
+                    px: 16,
+                }}>
+                <Grid lg={6} sx={{ mb: 12 }}>
+                    <SmartHomeImage/>
+                </Grid>
+                <Grid lg={6}>
+                    <Container component="main" maxWidth="xs">
+                        <Box
+                            sx={{
+                                mt: 10,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}>
+                            <Title/>
+                            <Box component="form" noValidate onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
+                                <Field type="email" label="Địa chỉ email" formik={formik}/>
+                                <PasswordField type='password' label='Mật khẩu' formik={formik}/>
+                                <PasswordField type='confirmPassword' label='Xác nhận mật khẩu' formik={formik}/>
+                                <PolicyCheckbox formik={formik}/>
+                                {errorMessage && <Typography color="error" variant="caption">{errorMessage}</Typography>}
+                                <AuthButton type='register'/>
+                                <DirectPage page='register'/>
+                            </Box>
                         </Box>
-                    </Box>
-                </Container>
+                    </Container>
+                </Grid>
             </Grid>
-        </Grid>
+        </>
     )
 }
