@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const dbo = require('../db/conn');
+const authToken = require('../controllers/auth');
 const User = require('../models/user');
 
 
@@ -13,46 +14,29 @@ const User = require('../models/user');
 router.post(
     '/register',
     [
-        check('email', 'Email không hợp lệ').isEmail(),
-        check('password', 'Mật khẩu phải tối thiểu 6 ký tự').isLength({ min: 6 }),
-        check('confirmPassword', 'Xác nhận mật khẩu không khớp').custom((value, { req }) => value === req.body.password),   
+        check('email', 'Invalid email').isEmail(),
+        check('password', 'Invalid password').isLength({ min: 6 }),
+        check('confirmPassword', 'Invalid confirm password').custom((value, { req }) => value === req.body.password),   
     ],
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        const { email, password } = req.body;
+        const { email: email_req, password: password_req } = req.body;
         try {
-            let user_exist = await dbo.getDb().collection('user').findOne({ email });
-            if (user_exist) {
-                return res
-                    .status(400)
-                    .json({ errors: [{ msg: 'Tài khoản đã tồn tại' }] });
+            const user = await dbo.getDb().collection('user').findOne({ email: email_req });
+            if (user) {
+                return res.status(400).json({ errors: [{ message: 'Account is already exist' }] });
             }
-
-            const user = new User({
-                email,
-                password,
+            const user_data = new User({
+                email: email_req,
+                password: password_req,
             });
             const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(password, salt);
-            await dbo.getDb().collection('user').insertOne(user);
-            const payload = {
-                user: {
-                    id: user.id,
-                },
-            };
-            jwt.sign(
-                payload,
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' },
-                (err, token) => {
-                    if (err) throw err;
-                    res.json({ token });
-                }
-            );
-            return res.status(201).json({ message: "Đăng ký thành công" });
+            user_data.password = await bcrypt.hash(password_req, salt);
+            await dbo.getDb().collection('user').insertOne(user_data);
+            return res.status(201).json({message: "Successfully registered"});
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server Error');
@@ -66,48 +50,60 @@ router.post(
 router.post(
     '/login',
     [
-        check('email', 'Email không hợp lệ').isEmail(),
-        check('password', 'Mật khẩu không được để trống').exists(),
+        check('email', 'Invalid email').isEmail(),
+        check('password', 'Invalid password').exists(),
     ],
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        const { email, password } = req.body;
+        const { email: email_req, password: password_req } = req.body;
         try {
-            let user = await dbo.getDb().collection('user').findOne({ email });
+            const user = await dbo.getDb().collection('user').findOne({ email: email_req});
             if (!user) {
                 return res
                     .status(400)
-                    .json({ errors: [{ msg: 'Tài khoản không tồn tại' }] });
+                    .json({ errors: [{ message: 'Account is not exist' }] });
             }
-            const isMatch = await bcrypt.compare(password, user.password);
+            const isMatch = await bcrypt.compare(password_req, user.password);
             if (!isMatch) {
                 return res
                 .status(400)
-                .json({ errors: [{ msg: 'Mật khẩu không trùng khớp' }] });
+                .json({ errors: [{ message: 'Password does not match' }] });
             }
             const payload = {
-                user: {
-                    id: user.id,
+                user_data: {
+                    id: user._id,
+                    email: user.email
                 },
             };
-            jwt.sign(
+            const token = jwt.sign(
                 payload,
                 process.env.JWT_SECRET,
-                { expiresIn: '1h' },
-                (err, token) => {
-                    if (err) throw err;
-                    res.json({ token });
-                }
+                { expiresIn: '30d' },
             );
-            return res.status(201).json({ message: "Đăng nhập thành công" });
+            return res.status(201).json({ message: "Successfully logged in", accessToken: token });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server Error');
         }
     }
 );
+
+router.get(
+    '/verifyToken',
+    async (req, res) => {
+        try {
+            const accessToken = req.headers['authorization'];
+            const token = accessToken && accessToken.split(' ')[1];
+            const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+            req.userEmail = decodedToken.user_data.email;
+            res.status(200).json({ message: 'Authorized' });
+        } catch {
+            res.status(401).json({ message: 'Unauthorized' });
+        } 
+    }
+)
 
 module.exports = router;

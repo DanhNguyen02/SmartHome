@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -36,7 +35,7 @@ const userSchema = new mongoose.Schema({
     },
     timestamp: {
         type: Date,
-        default: () => new Date().getTime() + (7 * 60 * 60 * 1000)
+        default: new Date()
     }
 });
 

@@ -29,7 +29,7 @@ const SmartHomeImage = () => {
     )
 }
 
-const PasswordField = ({formik, type, label}) => {
+const Field = ({type, label, value, formik}) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleClickShowPassword = () => {
@@ -40,78 +40,49 @@ const PasswordField = ({formik, type, label}) => {
         event.preventDefault();
     };
 
-    return (
-        <TextField
-            margin="normal"
-            required
-            fullWidth
-            name={type}
-            label={label}
-            type={showPassword ? 'text' : 'password'}
-            id={type}
-            autoComplete={type}
-            InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <VpnKeyOutlined />
-                    </InputAdornment>
-                ),
-                endAdornment: (
-                    <InputAdornment position="end">
-                        <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={handleClickShowPassword}
-                            onMouseDown={handleMouseDownPassword}
-                            edge="end">
-                            {showPassword ? <Visibility /> : <VisibilityOff />}
-                        </IconButton>
-                    </InputAdornment>
-                ),
-            }}
-            error={formik.touched[type] && Boolean(formik.errors[type])}
-            helperText={formik.touched[type] && formik.errors[type]}
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values[type]}
-            sx={{
-                '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#6C63FF',
-                },
-                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#6C63FF',
-                },
-            }}/>
-    )
-}
-
-const Field = ({formik=null, type, label}) => {
     const IconMapping = {
         'email': <EmailOutlined/>,
         'fullname': <AccountCircleOutlined/>,
         'phone': <PhoneOutlined/>,
-        'address': <HomeOutlined/>
+        'address': <HomeOutlined/>,
+        'password': <VpnKeyOutlined/>,
+        'confirmPassword': <VpnKeyOutlined/>
     };
+
     return (
         <TextField
             margin="normal"
             required
             fullWidth
-            id={type}
             label={label}
+            type={(type !== 'password' && type !== 'confirmPassword') || showPassword ? 'text' : 'password'}
+            id={type}
             name={type}
             autoComplete={type}
             InputProps={{
                 startAdornment: (
                     <InputAdornment position="start">
-                    {IconMapping[type]}
+                        {IconMapping[type]}
                     </InputAdornment>
                 ),
+                endAdornment: 
+                    type === "password" || type === "confirmPassword" ? (
+                        <InputAdornment position="end">
+                            <IconButton
+                                aria-label="toggle password visibility"
+                                onClick={handleClickShowPassword}
+                                onMouseDown={handleMouseDownPassword}
+                                edge="end">
+                                {showPassword ? <Visibility /> : <VisibilityOff />}
+                            </IconButton>
+                        </InputAdornment>
+                    ) : null
             }}
             error={formik?.touched[type] && Boolean(formik?.errors[type])}
             helperText={formik?.touched[type] && formik?.errors[type]}
             onBlur={formik?.handleBlur}
             onChange={formik?.handleChange}
-            value={formik?.values[type]}
+            value={formik?.values[type] || value}
             sx={{
                 '& .MuiInputLabel-root.Mui-focused': {
                     color: '#6C63FF',
@@ -119,6 +90,9 @@ const Field = ({formik=null, type, label}) => {
                 '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderColor: '#6C63FF',
                 },
+                "input::-ms-reveal, input::-ms-clear": {
+                    display: "none",
+                }
             }}/>
     );
 };
@@ -127,7 +101,7 @@ const Title = (props) => {
     let firstLine =  "Chào mừng đến với";
     let secondLine = "Nhà Thông Minh";
     if (props.fullname) {
-        firstLine = "Trang cá nhân của";
+        firstLine = "Thông tin người dùng";
         secondLine = props.fullname;
     }
     
@@ -191,8 +165,7 @@ const DirectPage = (props) => {
     )
 }
 
-export {PasswordField,
-        SmartHomeImage,
+export {SmartHomeImage,
         Field,
         Title,
         AuthButton,

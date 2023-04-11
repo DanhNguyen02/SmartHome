@@ -8,8 +8,7 @@ import {Grid,
         FormControlLabel,
         Typography}
     from '@mui/material';
-import {PasswordField,
-        SmartHomeImage,
+import {SmartHomeImage,
         Field,
         AuthButton,
         Title,
@@ -57,17 +56,20 @@ export default function Page() {
         }),
         onSubmit: async (values) => {
             try {
-                await axios.post('http://localhost:5000/api/auth/login', {
-                    email: values.email,
-                    password: values.password,
-            });
-            navigate('/dashboard');
+                const respond = await axios.post('http://localhost:5000/auth/login', {
+                                    email: values.email,
+                                    password: values.password,
+                                });
+                localStorage.setItem('accessToken', respond.data.accessToken);
+                navigate('/dashboard');
             } catch (error) {
                 console.error(error);
                 if (error.response.data.errors) {
                     error.response.data.errors.forEach((err) => {
-                        if (err.msg === 'Tài khoản không tồn tại') {
-                            setErrorMessage(err.msg);
+                        if (err.message === 'Account is not exist') {
+                            setErrorMessage('Tài khoản không tồn tại');
+                        } else if (err.message === 'Password does not match') {
+                            setErrorMessage('Mật khẩu không chính xác');
                         }
                     });
                 }
@@ -77,15 +79,15 @@ export default function Page() {
     useEffect(() => {setErrorMessage(null)}, [formik.values.email, formik.values.password]);
     return (
         <Grid
-            container spacing={2}
+            container={true} spacing={2}
             sx={{
                 alignItems: 'center',
                 px: 16,
             }}>
-            <Grid sm={6}>
+            <Grid item sm={6}>
                 <SmartHomeImage/>
             </Grid>
-            <Grid sm={6}>
+            <Grid item sm={6}>
                 <Container component="main" maxWidth="xs">
                     <Box sx={{
                             mt: 10,
@@ -96,7 +98,7 @@ export default function Page() {
                         <Title/>
                         <Box component="form" noValidate onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
                             <Field type='email' label='Địa chỉ Email' formik={formik}/>
-                            <PasswordField type='password' label='Mật khẩu' formik={formik}/>
+                            <Field type='password' label='Mật khẩu' formik={formik}/>
                             <AltOption/>
                             {errorMessage && <Typography color="error" variant="caption">{errorMessage}</Typography>}
                             <AuthButton type='login'/>

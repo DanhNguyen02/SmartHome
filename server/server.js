@@ -7,10 +7,11 @@ const bodyParser = require('body-parser');
 
 app.use(cors());
 app.use(express.json());
-app.use(require("./routes/record"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use("/api/auth", require("./routes/auth"));
+app.use(require("./routes/record"));
+app.use("/auth", require("./routes/auth"));
+app.use("/api", require("./routes/profile"));
 // get driver connection
 const dbo = require("./db/conn");
 const mqtt = require("./mqtt/conn");
