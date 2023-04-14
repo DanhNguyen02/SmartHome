@@ -82,6 +82,138 @@ const Data = [
     },
 ]
 
+const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, id, name, room }) => {
+    return (
+        <Modal 
+            open={isModalOpen}
+            onClose={() => setModalOpen(false)}
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+            <Box sx={{width: '400px',
+                    maxWidth: '80vw',
+                    position: 'fixed',
+                    top: '7%',
+                    bgcolor: 'background.paper',
+                    p: 2,
+                    borderRadius: '20px',
+                    border: 'none' }}>
+                {!isAdd && <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" component="h2" sx={{ display: 'flex', mr: 8}}>
+                        <p style={{ margin: "0", color: 'black', fontSize: 16}}>{name}&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                        <p style={{margin: '0', color: 'gray', fontSize: 16}}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{room}</p>
+                    </Typography>
+                    <IconButton onClick={() => setModalOpen(false)}>
+                        <CloseOutlined />
+                    </IconButton>
+                </Box>}
+                <Box sx={{m: 3}}>
+                    <FormControl fullWidth>
+                        <Box sx={{mb: 1}}>
+                            <Typography variant="subtitle1">
+                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Tên thiết bị</p>
+                            </Typography>
+                            <TextField
+                                required
+                                fullWidth
+                                id={'name-' + id}
+                                name={'name-' + id}
+                                defaultValue={name}
+                                autoComplete={'name-' + id}
+                                sx={{
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#6C63FF',
+                                    },
+                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#6C63FF',
+                                    },
+                                    
+                                }}/>
+                        </Box>
+                        <Box sx={{my: 1}}>
+                            <Typography variant="subtitle1">
+                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Mô tả</p>
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                multiline
+                                rows={3}
+                                id={'description-' + id}
+                                name={'description-' + id}
+                                autoComplete={'description-' + id}
+                                sx={{
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#6C63FF',
+                                    },
+                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#6C63FF',
+                                    },
+                                }}/>
+                        </Box>
+                        <Box sx={{my: 1}}>
+                            <Grid container justifyItems="flex-start" sx={{my: 1}}>
+                                <FormControl
+                                    fullWidth
+                                    sx={{
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#6C63FF'
+                                    },
+                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#6C63FF'
+                                    }
+                                    }}>
+                                    <InputLabel 
+                                        id="room-select-label">
+                                        Phòng
+                                    </InputLabel>
+                                    <Select
+                                        labelId="room-select-label"
+                                        id={'room-' + id}
+                                        label="Room"
+                                        defaultValue={room}
+                                        sx={{
+                                            
+                                        }}>
+                                        <MenuItem value="living">Phòng khách</MenuItem>
+                                        <MenuItem value="bed">Phòng ngủ</MenuItem>
+                                        <MenuItem value="toilet">Phòng vệ sinh</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Box>                
+                        <Box sx={{my: 1}}>
+                            <Typography variant="subtitle1">
+                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Chế độ</p>
+                            </Typography>
+                            <FormControl component="fieldset">
+                                <RadioGroup row aria-label="mode" name="mode" defaultValue="auto">
+                                    <FormControlLabel
+                                        value="auto"
+                                        control={<Radio />}
+                                        label="Tự động"
+                                        sx={{'& .Mui-checked .MuiSvgIcon-root': {color: '#6C63FF'}}}/>
+                                    <FormControlLabel
+                                        value="manual"
+                                        control={<Radio />}
+                                        label="Thủ công"
+                                        sx={{'& .Mui-checked .MuiSvgIcon-root': {color: '#6C63FF'}}}/>
+                                </RadioGroup>
+                            </FormControl>
+                        </Box>
+                        <Box sx={{my: 1, display: 'flex', justifyContent: 'center'}}>
+                            <ModalButton type='delete'/>
+                            <ModalButton type='update'/>
+                        </Box>
+                    </FormControl>
+                </Box>
+            </Box>
+        </Modal>
+    )
+    
+}
+
 const ModalButton = (props) => {
     const bgcolor = props.type === 'update' ? '#6C63FF' : 'Red'
     return (
@@ -107,7 +239,7 @@ const ModalButton = (props) => {
 }
 
 const SwitchItem = (props) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setModalOpen] = useState(false);
 
     const RoomMapping = {
         'Phòng khách': 'living',
@@ -132,7 +264,7 @@ const SwitchItem = (props) => {
     return (
         <>
             <Box 
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setModalOpen(true)}
                 sx={{
                     p: 1,
                     mt: "10px",
@@ -160,7 +292,7 @@ const SwitchItem = (props) => {
             </Box>
             <Modal 
                 open={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={() => setModalOpen(false)}
                 sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -179,7 +311,7 @@ const SwitchItem = (props) => {
                             <p style={{ margin: "0", color: 'black', fontSize: 16}}>{device()['name']}&nbsp;&nbsp;&nbsp;&nbsp;</p>
                             <p style={{margin: '0', color: 'gray', fontSize: 16}}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device()['room']}</p>
                         </Typography>
-                        <IconButton onClick={() => setIsModalOpen(false)}>
+                        <IconButton onClick={() => setModalOpen(false)}>
                             <CloseOutlined />
                         </IconButton>
                     </Box>
@@ -288,14 +420,41 @@ const SwitchItem = (props) => {
     )
 }
 
+const AddDevice = (props) => {
+    const [isModalOpen, setModalOpen] = useState(false);
+    return (
+        <>
+            <Button
+                type="submit"
+                onClick={() => setModalOpen(true)}
+                variant="contained"
+                sx = {{
+                    mx: 2, 
+                    p: 1,
+                    backgroundColor: '#6C63FF',
+                    fontSize: 12,
+                    width: 120,
+                    '&:hover': {
+                        backgroundColor: 'white',
+                        color: '#6C63FF',
+                    },
+                }}>
+                Thêm thiết bị
+            </Button>
+            <DeviceModal isAdd={true} isModalOpen={isModalOpen} setModalOpen={setModalOpen}/>
+        </>
+    )
+}
+
 
 export default function Page () {
     return (
         <Grid spacing={2} sx={{m: 4}}>
-            <Grid xs={12} sx={{p: 1}}>
-                <Typography color='primary' sx={{fontWeight: 'bold', fontSize: '1.25rem', color: 'secondary'}}>
+            <Grid xs={12} sx={{p: 1, display: 'flex', alignItems: 'center'}}>
+                <Typography color='primary' sx={{mr: 2, fontWeight: 'bold', fontSize: '1.25rem', color: 'secondary'}}>
                     Thiết bị và Cảm biến
                 </Typography>
+                <AddDevice/>
             </Grid>
             <Grid container sx={{my: 2}}>
                 <Grid xs={4} sx={{p: 1}}>

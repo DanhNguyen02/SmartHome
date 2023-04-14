@@ -1,5 +1,49 @@
 const mongoose = require('mongoose');
 
+const deviceSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        trim: true
+    },
+    feed: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    type: {
+        type: String,
+        enum: ['light', 'fan', 'temp', 'humid']
+    },
+    room: {
+        type: String,
+        enum: ['living', 'bed', 'toilet', 'kitchen']
+    },
+    data: {
+        type: Number,
+        default: 0,
+        lastUpdated: {
+            type: Date,
+            default: new Date()
+        },
+    },
+    min: {
+        type: Number,
+        default: NaN
+    },
+    max: {
+        type: Number,
+        default: NaN
+    },
+    dataHistory: {
+        type: [
+            {
+                data: Number,
+                time: Date
+            }
+        ]
+    }
+});
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -17,7 +61,18 @@ const userSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
-        enum: ['male', 'female', 'other']
+        enum: ['male', 'female', 'other'],
+        default: 'other'
+    },
+    adafruitUsername : {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    adafruitActivekey: {
+        type: String,
+        trim: true,
+        default: ''
     },
     dob: {
         type: Date
@@ -33,9 +88,13 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: Buffer
     },
-    timestamp: {
+    timeCreated: {
         type: Date,
         default: new Date()
+    },
+    listDevices: {
+        type: [deviceSchema],
+        default: []
     }
 });
 
