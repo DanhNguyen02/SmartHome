@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {FormControl,
         Button,
         Grid,
@@ -14,12 +14,10 @@ import {PhotoCameraOutlined,
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
-import {PasswordField,
-        Field,
+import {Field,
         Title}
 from '../components';
-
+import axios from 'axios';
 import pic from '../../../assets/images/TruongAnhNgoc.jpg';
 
 const ProfilePicture = () => {
@@ -133,6 +131,23 @@ const ConfirmButton = () => {
 }
 
 export default function Page() {
+    // const [user, setUser] = useState(null);
+    // useEffect(() => {
+    //     async function fetchUser() {
+    //         try {
+    //             const token = localStorage.getItem('accessToken');
+    //             const response = await axios.get('http://localhost:5000/api/profile', {
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`,
+    //                 },
+    //             });
+    //             setUser(response.data);
+    //         } catch (err) {
+    //             
+    //         }
+    //     }
+    //     fetchUser();
+    // }, []);
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -157,13 +172,11 @@ export default function Page() {
                     <Grid item xs={6} sx={{px: 12}}>
                         <Field type='fullname' label='Họ và tên'/>
                         <Field type='email' label='Địa chỉ email'/>
-                        <PasswordField type='password' label='Mật khẩu'/>
-                        <PasswordField type='confirm-password' label='Xác nhận mật khẩu'/>
+                        <Field type='phone' label='Số điện thoại'/>
                     </Grid>
                     <Grid item xs={6} sx={{px: 12}}>
                         <GenderSelect/>
                         <BirthSelect/>
-                        <Field type='phone' label='Số điện thoại'/>
                         <Field type='address' label='Địa chỉ'/>
                     </Grid>
                     <Grid item xs={6} sx={{mt: 4, display: 'flex', px: 12}}>

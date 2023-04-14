@@ -13,8 +13,7 @@ import {Grid,
         IconButton }
     from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import {PasswordField,
-        SmartHomeImage,
+import {SmartHomeImage,
         Field,
         AuthButton,
         Title,
@@ -77,21 +76,15 @@ export default function Page() {
         }),
         onSubmit: async (values) => {
             try {
-                await axios.post('http://localhost:5000/api/auth/register', {
+                await axios.post('http://localhost:5000/auth/register', {
                     email: values.email,
                     password: values.password,
                     confirmPassword: values.confirmPassword,
-            });
-            setShowModal(true);
+                });
+                setShowModal(true);
             } catch (error) {
                 console.error(error);
-                if (error.response.data.errors) {
-                    error.response.data.errors.forEach((err) => {
-                        if (err.msg === 'Tài khoản đã tồn tại') {
-                            setErrorMessage(err.msg);
-                        }
-                    });
-                }
+                if (error.response.data.message === 'Account is already exist') setErrorMessage('Tài khoản đã tồn tại');
             }
         },
     });
@@ -139,15 +132,15 @@ export default function Page() {
                     </Alert>
                 </Box>
             </Modal>
-            <Grid container spacing={2}
+            <Grid container="true" spacing={2}
                 sx={{
                     alignItems: 'center',
                     px: 16,
                 }}>
-                <Grid lg={6} sx={{ mb: 12 }}>
+                <Grid item lg={6} sx={{ mb: 12 }}>
                     <SmartHomeImage/>
                 </Grid>
-                <Grid lg={6}>
+                <Grid item lg={6}>
                     <Container component="main" maxWidth="xs">
                         <Box
                             sx={{
@@ -159,8 +152,8 @@ export default function Page() {
                             <Title/>
                             <Box component="form" noValidate onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
                                 <Field type="email" label="Địa chỉ email" formik={formik}/>
-                                <PasswordField type='password' label='Mật khẩu' formik={formik}/>
-                                <PasswordField type='confirmPassword' label='Xác nhận mật khẩu' formik={formik}/>
+                                <Field type='password' label='Mật khẩu' formik={formik}/>
+                                <Field type='confirmPassword' label='Xác nhận mật khẩu' formik={formik}/>
                                 <PolicyCheckbox formik={formik}/>
                                 {errorMessage && <Typography color="error" variant="caption">{errorMessage}</Typography>}
                                 <AuthButton type='register'/>
