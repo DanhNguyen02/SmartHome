@@ -80,17 +80,11 @@ export default function Page() {
                     email: values.email,
                     password: values.password,
                     confirmPassword: values.confirmPassword,
-            });
-            setShowModal(true);
+                });
+                setShowModal(true);
             } catch (error) {
                 console.error(error);
-                if (error.response.data.errors) {
-                    error.response.data.errors.forEach((err) => {
-                        if (err.message === 'Account is already exist') {
-                            setErrorMessage('Tài khoản đã tồn tại');
-                        }
-                    });
-                }
+                if (error.response.data.message === 'Account is already exist') setErrorMessage('Tài khoản đã tồn tại');
             }
         },
     });

@@ -8,7 +8,7 @@ const authToken = (req, res, next) => {
         req.userEmail = decodedToken.user_data.email;
         next ? next() : res.status(200).json({ message: 'Authorized' });
     } catch {
-        return res.status(401).json({ message: 'Unauthorized' });
+        res.status(401).json({ message: 'Unauthorized' });
     }
 }
 

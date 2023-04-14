@@ -56,24 +56,18 @@ export default function Page() {
         }),
         onSubmit: async (values) => {
             try {
-                const respond = await axios.post('http://localhost:5000/auth/login', {
+                const response = await axios.post('http://localhost:5000/auth/login', {
                                     email: values.email,
                                     password: values.password,
                                 });
-                localStorage.setItem('accessToken', respond.data.accessToken);
-                navigate('/dashboard');
+                localStorage.setItem('accessToken', response.data.accessToken);
             } catch (error) {
                 console.error(error);
-                if (error.response.data.errors) {
-                    error.response.data.errors.forEach((err) => {
-                        if (err.message === 'Account is not exist') {
-                            setErrorMessage('Tài khoản không tồn tại');
-                        } else if (err.message === 'Password does not match') {
-                            setErrorMessage('Mật khẩu không chính xác');
-                        }
-                    });
-                }
+                error.response.data.message === 'Account is not exist' ?
+                    setErrorMessage('Tài khoản không tồn tại') : 
+                    setErrorMessage('Mật khẩu không chính xác');
             }
+            
         },
     });
     useEffect(() => {setErrorMessage(null)}, [formik.values.email, formik.values.password]);

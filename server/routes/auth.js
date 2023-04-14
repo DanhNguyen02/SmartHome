@@ -27,7 +27,7 @@ router.post(
         try {
             const user = await dbo.getDb().collection('user').findOne({ email: email_req });
             if (user) {
-                return res.status(400).json({ errors: [{ message: 'Account is already exist' }] });
+                return res.status(400).json({ message: 'Account is already exist' });
             }
             const user_data = new User({
                 email: email_req,
@@ -36,7 +36,7 @@ router.post(
             const salt = await bcrypt.genSalt(10);
             user_data.password = await bcrypt.hash(password_req, salt);
             await dbo.getDb().collection('user').insertOne(user_data);
-            return res.status(201).json({message: "Successfully registered"});
+            return res.status(201).json({ message: 'Successfully registered' });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server Error');
@@ -64,13 +64,13 @@ router.post(
             if (!user) {
                 return res
                     .status(400)
-                    .json({ errors: [{ message: 'Account is not exist' }] });
+                    .json({ message: 'Account is not exist' });
             }
             const isMatch = await bcrypt.compare(password_req, user.password);
             if (!isMatch) {
                 return res
                 .status(400)
-                .json({ errors: [{ message: 'Password does not match' }] });
+                .json({ message: 'Password does not match' });
             }
             const payload = {
                 user_data: {
@@ -83,7 +83,7 @@ router.post(
                 process.env.JWT_SECRET,
                 { expiresIn: '30d' },
             );
-            return res.status(201).json({ message: "Successfully logged in", accessToken: token });
+            res.status(201).json({ message: 'Successfully logged in', accessToken: token });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server Error');
@@ -93,16 +93,8 @@ router.post(
 
 router.get(
     '/verifyToken',
-    async (req, res) => {
-        try {
-            const accessToken = req.headers['authorization'];
-            const token = accessToken && accessToken.split(' ')[1];
-            const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-            req.userEmail = decodedToken.user_data.email;
-            res.status(200).json({ message: 'Authorized' });
-        } catch {
-            res.status(401).json({ message: 'Unauthorized' });
-        } 
+    (req, res) => {
+        authToken(req, res);
     }
 )
 

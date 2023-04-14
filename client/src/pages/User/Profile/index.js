@@ -142,10 +142,8 @@ export default function Page() {
     //                 },
     //             });
     //             setUser(response.data);
-    //         } catch (error) {
-    //             if (error.response.status === 401) {
-    //                 window.location.href = '/login';
-    //             }
+    //         } catch (err) {
+    //             
     //         }
     //     }
     //     fetchUser();
