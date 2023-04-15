@@ -25,37 +25,43 @@ function Rooms() {
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => {
     setValue("name","");
-    setValue("description","");
+    setValue("desc","");
     setOpenAdd(false);
   }
   function handleSubmitAdd(event) {
     setOpenAdd(false);
     let name = getValues().name;
-    let description = getValues().description;
+    let desc = getValues().desc;
     setValue("name","")
-    setValue("description","")
+    setValue("desc","")
     event.preventDefault();
-    fetch('http://localhost:5000/room', {
+    fetch('http://localhost:5000/api/room', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ name, description })
+      body: JSON.stringify({ name, desc })
     })
       .then(response => response.json())
       .catch(error => {
         console.error('Error adding data:', error);
       });
-    fetchListRooms();
+    let newRoom = {
+      "name": name,
+      "desc": desc,
+      "devices": []
+    }
+    listRooms.push(newRoom);
   }
 
+  // Fetch list rooms
   useEffect(() => {
     fetchListRooms();
   }, []);
 
   async function fetchListRooms() {
     // const response = fetch("http://localhost:5000/rooms");
-    const response = await fetch('http://localhost:5000/rooms', {
+    const response = await fetch('http://localhost:5000/api/rooms', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -69,57 +75,64 @@ function Rooms() {
     }
 
     const record = await response.json();
-    console.log(record);
     setListRooms(record);
   }
 
   const [openEdit, setOpenEdit] = useState(false);
   const handleOpenEdit = (e) => {
     setOpenEdit(true);
-    let id = e.target.getAttribute("id"),
-        name = e.target.getAttribute("name"),
-        description = e.target.getAttribute("description")
-    setValue("id", id)
-    setValue("name", name)
-    setValue("description", description)
+    let index = e.target.getAttribute("index");
+    setValue("index", index);
+    setValue("name", listRooms[index].name);
+    setValue("desc", listRooms[index].desc);
   }
   const handleCloseEdit = () => setOpenEdit(false);
-  function handleSubmitEdit(event) {
+  const handleSubmitEdit = (event) => {
     setOpenEdit(false);
-    let id = getValues().id;
+    let room = getValues().index;
     let name = getValues().name;
-    let description = getValues().description;
+    let desc = getValues().desc;
+    setValue("room", {});
+    setValue("name", "");
+    setValue("desc", "");
     event.preventDefault();
-    fetch('http://localhost:5000/room', {
+    fetch('http://localhost:5000/api/room', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ id, name, description })
+      body: JSON.stringify({ room, name, desc })
     })
       .then(response => response.json())
       .catch(error => {
         console.error('Error adding data:', error);
       });
-    fetchListRooms();
+    let editedRoom = {
+      "name": name,
+      "desc": desc,
+      "devices": listRooms[room].devices
+    };
+    let newListRooms = listRooms;
+    newListRooms[room] = editedRoom;
+    setListRooms(newListRooms);
   }
 
   function handleDelete(event) {
-    let id = event.target.getAttribute("id");
-    console.log(JSON.stringify({ id }));
+    let room = event.target.getAttribute("index");
     event.preventDefault();
-    fetch('http://localhost:5000/room', {
+    fetch('http://localhost:5000/api/room', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ room })
     })
       .then(response => response.json())
       .catch(error => {
         console.error('Error adding data:', error);
       });
-    fetchListRooms();
+    let theRoom = listRooms[room];
+    setListRooms(listRooms.filter(Room => Room !== theRoom));
   }
 
   const style = {
@@ -164,7 +177,7 @@ function Rooms() {
             multiline
             rows={10}
             sx={{width: '100%'}}
-            {...register("description")}
+            {...register("desc")}
           />
           <Grid container spacing={2} sx={{marginTop: '10px'}}>
             <Grid item xs={4}></Grid>
@@ -223,7 +236,7 @@ function Rooms() {
             multiline
             rows={10}
             sx={{width: '100%'}}
-            {...register("description")}
+            {...register("desc")}
           />
           <Grid container spacing={2} sx={{marginTop: '10px'}}>
             <Grid item xs={4}></Grid>
@@ -268,7 +281,7 @@ function Rooms() {
                 {room.name}
               </Typography>
               <Typography variant="subtitle2" color="text.secondary" component="div">
-                {room.description}
+                {room.desc}
               </Typography>
             </CardContent>
           </Box>
@@ -276,17 +289,18 @@ function Rooms() {
         <Dropdown style={{position: 'absolute', right: 0}}>
           <Dropdown.Toggle variant="primary" id="dropdown-basic" size="sm" style={{backgroundColor: '#6C63FF'}}/>
           <Dropdown.Menu>
-            <Dropdown.Item 
-              id={room._id}
-              name={room.name} 
-              description={room.description} 
-              onClick={handleOpenEdit}>
+            <Dropdown.Item
+              index={listRooms.indexOf(room)} 
+              onClick={handleOpenEdit}
+            >
               Chỉnh sửa
             </Dropdown.Item>
             <Dropdown.Item
-              id={room._id}
+              index={listRooms.indexOf(room)}
               onClick={handleDelete}
-            >Xóa</Dropdown.Item>
+            >
+              Xóa
+            </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </Card>
