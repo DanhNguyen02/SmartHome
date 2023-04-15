@@ -22,7 +22,6 @@ module.exports = {
       "haiche198/feeds/yolo-temp",
     ];
     client.on("connect", () => {
-      console.log("Connected");
       for (let topic of topics) {
         client.subscribe([topic], () => {
           console.log(`Subscribe to topic '${topic}'`);
@@ -37,7 +36,7 @@ module.exports = {
       };
       let db_connect = dbo.getDb();
       db_connect
-        .collection(topic.substring(topic.lastIndexOf("/") + 1))
+        .collection(topic)
         .insertOne(messageObject, function (err, res) {
           if (err) throw err;
         });
