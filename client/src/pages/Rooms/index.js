@@ -10,6 +10,7 @@ import {
   Modal,
   TextField,
   Grid,
+  Link
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import { Dropdown } from 'react-bootstrap';
@@ -24,47 +25,48 @@ function Rooms() {
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => {
     setValue("name","");
-    setValue("description","");
+    setValue("desc","");
     setOpenAdd(false);
   }
   function handleSubmitAdd(event) {
     setOpenAdd(false);
     let name = getValues().name;
-    let description = getValues().description;
+    let desc = getValues().desc;
     setValue("name","")
-    setValue("description","")
+    setValue("desc","")
     event.preventDefault();
-    fetch('http://localhost:5000/room', {
+    fetch('http://localhost:5000/api/room', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ name, description })
+      body: JSON.stringify({ name, desc })
     })
       .then(response => response.json())
-      .then(data => {
-        console.log('Data added:', data);
-      })
       .catch(error => {
-        console.log(JSON.stringify({ name, description }))
         console.error('Error adding data:', error);
       });
+    let newRoom = {
+      "name": name,
+      "desc": desc,
+      "devices": []
+    }
+    listRooms.push(newRoom);
   }
 
+  // Fetch list rooms
   useEffect(() => {
-    let timer;
-    timer = setInterval(() => {
-      const sec = new Date().getSeconds();
-      if (sec % 10) return;
-      fetchListRooms();
-    }, 1000);
-    return () => {
-      clearInterval(timer);
-    };
+    fetchListRooms();
   }, []);
 
   async function fetchListRooms() {
-    const response = await fetch("http://localhost:5000/rooms");
+    // const response = fetch("http://localhost:5000/rooms");
+    const response = await fetch('http://localhost:5000/api/rooms', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
 
     if (!response.ok) {
       const message = `An error occured: ${response.statusText}`;
@@ -73,61 +75,64 @@ function Rooms() {
     }
 
     const record = await response.json();
-    setListRooms(record)
+    setListRooms(record);
   }
 
   const [openEdit, setOpenEdit] = useState(false);
   const handleOpenEdit = (e) => {
     setOpenEdit(true);
-    let id = e.target.getAttribute("id"),
-        name = e.target.getAttribute("name"),
-        description = e.target.getAttribute("description")
-    setValue("id", id)
-    setValue("name", name)
-    setValue("description", description)
+    let index = e.target.getAttribute("index");
+    setValue("index", index);
+    setValue("name", listRooms[index].name);
+    setValue("desc", listRooms[index].desc);
   }
   const handleCloseEdit = () => setOpenEdit(false);
-  function handleSubmitEdit(event) {
+  const handleSubmitEdit = (event) => {
     setOpenEdit(false);
-    let id = getValues().id;
+    let room = getValues().index;
     let name = getValues().name;
-    let description = getValues().description;
+    let desc = getValues().desc;
+    setValue("room", {});
+    setValue("name", "");
+    setValue("desc", "");
     event.preventDefault();
-    console.log(JSON.stringify({ id, name, description }))
-    fetch('http://localhost:5000/editroom', {
-      method: 'POST',
+    fetch('http://localhost:5000/api/room', {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ id, name, description })
+      body: JSON.stringify({ room, name, desc })
     })
       .then(response => response.json())
-      .then(data => {
-        console.log('Data added:', data);
-      })
       .catch(error => {
         console.error('Error adding data:', error);
       });
+    let editedRoom = {
+      "name": name,
+      "desc": desc,
+      "devices": listRooms[room].devices
+    };
+    let newListRooms = listRooms;
+    newListRooms[room] = editedRoom;
+    setListRooms(newListRooms);
   }
 
   function handleDelete(event) {
-    let id = event.target.getAttribute("id");
-    console.log(JSON.stringify({ id }));
+    let room = event.target.getAttribute("index");
     event.preventDefault();
-    fetch('http://localhost:5000/deleteroom', {
-      method: 'POST',
+    fetch('http://localhost:5000/api/room', {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ room })
     })
       .then(response => response.json())
-      .then(data => {
-        console.log('Data added:', data);
-      })
       .catch(error => {
         console.error('Error adding data:', error);
       });
+    let theRoom = listRooms[room];
+    setListRooms(listRooms.filter(Room => Room !== theRoom));
   }
 
   const style = {
@@ -172,7 +177,7 @@ function Rooms() {
             multiline
             rows={10}
             sx={{width: '100%'}}
-            {...register("description")}
+            {...register("desc")}
           />
           <Grid container spacing={2} sx={{marginTop: '10px'}}>
             <Grid item xs={4}></Grid>
@@ -191,7 +196,7 @@ function Rooms() {
               </Button>
             </Grid>
             <Grid item xs={2}>
-              <Button variant='contained' onClick={handleSubmitAdd}>
+              <Button variant='contained' onClick={handleSubmitAdd} sx={{backgroundColor: '#6C63FF'}}>
                 Xác nhận
               </Button>
             </Grid>
@@ -231,7 +236,7 @@ function Rooms() {
             multiline
             rows={10}
             sx={{width: '100%'}}
-            {...register("description")}
+            {...register("desc")}
           />
           <Grid container spacing={2} sx={{marginTop: '10px'}}>
             <Grid item xs={4}></Grid>
@@ -250,7 +255,7 @@ function Rooms() {
               </Button>
             </Grid>
             <Grid item xs={2}>
-              <Button variant='contained' onClick={handleSubmitEdit}>
+              <Button variant='contained' sx={{backgroundColor: '#6C63FF'}} onClick={handleSubmitEdit}>
                 Xác nhận
               </Button>
             </Grid>
@@ -263,36 +268,39 @@ function Rooms() {
   function ListRooms() {
     return(listRooms.map((room) => (
       <Card sx={{ display: 'flex', margin: 4, boxShadow: '1px 1px 1px 1px grey', position: 'relative' }}>
-        <CardMedia
-          component="img"
-          sx={{ width: 120 }}
-          image={Logo}
-          alt="Live from space album cover"
-        />
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <CardContent sx={{ flex: '1 0 auto' }}>
-            <Typography component="div" variant="h6">
-              {room.name}
-            </Typography>
-            <Typography variant="subtitle2" color="text.secondary" component="div">
-              {room.description}
-            </Typography>
-          </CardContent>
-        </Box>
+        <Link href={window.location.href + '/' + listRooms.indexOf(room) +'/devices'} sx={{ textDecoration: 'none', display: 'flex' }}>
+          <CardMedia
+            component="img"
+            sx={{ width: 120 }}
+            image={Logo}
+            alt="Live from space album cover"
+          />
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flex: '1 0 auto' }}>
+              <Typography component="div" variant="h6" sx={{ color: '#6C63EF' }}>
+                {room.name}
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary" component="div">
+                {room.desc}
+              </Typography>
+            </CardContent>
+          </Box>
+        </Link>
         <Dropdown style={{position: 'absolute', right: 0}}>
-          <Dropdown.Toggle variant="primary" id="dropdown-basic" size="sm"/>
+          <Dropdown.Toggle variant="primary" id="dropdown-basic" size="sm" style={{backgroundColor: '#6C63FF'}}/>
           <Dropdown.Menu>
-            <Dropdown.Item 
-              id={room._id}
-              name={room.name} 
-              description={room.description} 
-              onClick={handleOpenEdit}>
+            <Dropdown.Item
+              index={listRooms.indexOf(room)} 
+              onClick={handleOpenEdit}
+            >
               Chỉnh sửa
             </Dropdown.Item>
             <Dropdown.Item
-              id={room._id}
+              index={listRooms.indexOf(room)}
               onClick={handleDelete}
-            >Xóa</Dropdown.Item>
+            >
+              Xóa
+            </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </Card>
@@ -303,7 +311,7 @@ function Rooms() {
       <Breadcrumbs aria-label="breadcrumb" style={{ margin: '20px' }}>
         <Typography color="text.primary">Danh sách phòng</Typography>
       </Breadcrumbs>
-      <Button variant="contained" sx={{marginLeft: 2}} startIcon={<AddIcon />} onClick={handleOpenAdd}>
+      <Button variant="contained" sx={{marginLeft: 2, backgroundColor: '#6C63FF'}} startIcon={<AddIcon />} onClick={handleOpenAdd}>
         Tạo phòng mới
       </Button>
       <AddRoomBox />
