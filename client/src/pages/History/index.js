@@ -128,6 +128,9 @@ function History() {
     },
   }));
   
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
   function ChooseSensor() {
     return (
       <>
@@ -140,12 +143,20 @@ function History() {
           </Grid>
           <Grid >
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker sx={{ width: 200, marginLeft: 5}}/>
+              <DatePicker 
+                sx={{ width: 200, marginLeft: 5}}
+                value={startDate}
+                onChange={(startDate) => setStartDate(startDate)}
+              />
             </LocalizationProvider>
           </Grid>
           <Grid sx={{marginLeft: '21px'}}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker sx={{ width: 200}}/>
+              <DatePicker 
+                sx={{ width: 200}}
+                value={endDate}
+                onChange={(endDate) => setEndDate(endDate)}
+              />
             </LocalizationProvider>
           </Grid>
           <Grid>
@@ -154,7 +165,7 @@ function History() {
             </Button>
           </Grid>
           <Grid>
-            <Button variant="contained" size="large" sx={{height: 55, marginLeft: '20px', backgroundColor: '#6C63FF'}}>
+            <Button variant="contained" size="large" sx={{height: 55, marginLeft: '20px', backgroundColor: '#6C63FF'}} onClick={createCSV}>
               <DownloadIcon />
             </Button>
           </Grid>
@@ -164,16 +175,74 @@ function History() {
   }
 
   const [records, setRecord] = useState([]);
+
+  function createCSV() {
+    let csv_data = [];
+    let csv_row = ['Time', 'Message'];
+    csv_data.push(csv_row.join(','));
+    for (let data of records) {
+      csv_row = [data.time.split(',').join(''), data.message];
+      csv_data.push(csv_row.join(','));
+    }
+    csv_data = csv_data.join("\n");
+
+    var CSVFile = new Blob([csv_data], { type: "text/csv" });
+
+    // Create to temporary link to initiate
+    // download process
+    var temp_link = document.createElement("a");
+
+    // Download csv file
+    temp_link.download = "tigerleopard.csv";
+    var url = window.URL.createObjectURL(CSVFile);
+    temp_link.href = url;
+
+    // This link should not be displayed
+    temp_link.style.display = "none";
+    document.body.appendChild(temp_link);
+
+    // Automatically click the link to trigger download
+    temp_link.click();
+    document.body.removeChild(temp_link);
+  }
   
   const updateRecords = () => {
-    console.log(room);
-    console.log(sensor);
     if (room != null && sensor != null) {
       getSensorRecords(listRooms.indexOf(room), listSensors.indexOf(sensor));
     }
     else {
       setRecord([]);
     }
+  }
+
+  function checkStartDate(data) {
+    let fullday = data.time.split(',')[0].split('/');
+    let month = fullday[0], day = fullday[1], year = fullday[2];
+    if (year < startDate.year()) return false;
+    else if (year == startDate.year()) {
+      if (month < startDate.month() + 1) return false;
+      else if (month == startDate.month() + 1) {
+        if (day < startDate.date()) return false;
+        return true;
+      }
+      return true;
+    }
+    return true;
+  }
+
+  function checkEndDate(data) {
+    let fullday = data.time.split(',')[0].split('/');
+    let month = fullday[0], day = fullday[1], year = fullday[2];
+    if (year > endDate.year()) return false;
+    else if (year == endDate.year()) {
+      if (month > endDate.month() + 1) return false;
+      else if (month == endDate.month() + 1) {
+        if (day > endDate.date()) return false;
+        return true;
+      }
+      return true;
+    }
+    return true;
   }
 
   async function getSensorRecords(room, device) {
@@ -193,7 +262,10 @@ function History() {
     }
 
     const record = await response.json();
-    setRecord(record);
+    let records = record;
+    if (startDate != null) records = records.filter(checkStartDate);
+    if (endDate != null) records = records.filter(checkEndDate);
+    setRecord(records);
   }
 
   function Graph() {
