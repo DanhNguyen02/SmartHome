@@ -126,7 +126,7 @@ recordRoutes.route("/devices").get(function (req, res) {
   let devices;
   db_connect.collection("user").findOne({}, function (err, result) {
     if (err) throw err;
-    devices = result.rooms[parseInt(req.body.room)].devices;
+    devices = result.rooms[parseInt(req.query.room)].devices;
     res.json(devices);
   });
 });
