@@ -191,8 +191,8 @@ recordRoutes.route("/data").get(function (req, res) {
   let feed;
   db_connect.collection("user").findOne({}, function (err, result) {
     if (err) throw err;
-    devices = result.rooms[parseInt(req.body.room)].devices;
-    feed = devices[parseInt(req.body.device)].feed;
+    devices = result.rooms[parseInt(req.query.room)].devices;
+    feed = devices[parseInt(req.query.device)].feed;
     db_connect
       .collection(feed)
       .find()
