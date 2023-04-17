@@ -67,13 +67,13 @@ const Data = [
     },
     {
         'id': '7',
-        'type': 'sensor',
+        'type': 'temp',
         'name': 'Nhiệt độ',
         'room': 'Phòng khách'
     },
     {
         'id': '8',
-        'type': 'sensor',
+        'type': 'humid',
         'name': 'Độ ẩm',
         'room': 'Phòng khách'
     },
@@ -133,11 +133,11 @@ const ShowRange = ({ isAdd, sensor, device={} }) => {
                 </Box>
             )
         } else if (sensor === 'other') return null;
-        else if (sensor === 'none') {
+        else if (sensor === 'none' && (device.type === 'temp' || device.type === 'humid')) {
             return (
                 <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
-                    <RangeField type='min' device={device.type}/>
-                    <RangeField type='max' device={device.type}/>
+                    <RangeField type='min' device={{type: device.type}}/>
+                    <RangeField type='max' device={{type: device.type}}/>
                 </Box>
             )
         }
@@ -381,7 +381,8 @@ const SwitchItem = (props) => {
     const IconMapping = {
         'light': LightIcon,
         'fan': FanIcon,
-        'sensor': SensorIcon
+        'temp': SensorIcon,
+        'humid': SensorIcon,
     }
 
     let device = () => {
@@ -421,7 +422,7 @@ const SwitchItem = (props) => {
                 <p style={{marginBottom: '0', color: 'black'}}>{device()['name']}&nbsp;&nbsp;&nbsp;&nbsp;</p>
                 <p style={{marginBottom: '0',}}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device()['room']}</p>
             </Box>
-            <DeviceModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} device={{ type: 'temp' }}/>
+            <DeviceModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} device={{ type: device()['type'] }}/>
         </>
     )
 }
