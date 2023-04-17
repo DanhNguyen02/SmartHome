@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { styled } from "@mui/material/styles";
 import {
   Typography,
@@ -22,7 +22,7 @@ import {
   YAxis,
 } from "recharts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faGear } from "@fortawesome/free-solid-svg-icons";
 import LightIcon from "../../assets/images/lightIcon.png";
 import FanIcon from "../../assets/images/fanIcon.png";
 import SensorIcon from "../../assets/images/sensorIcon.png";
@@ -32,6 +32,7 @@ const ROOM = "Phòng ngủ chính";
 const today = new Date().toLocaleDateString();
 var timewithsec = new Date().toLocaleTimeString();
 const time = timewithsec.substring(0, timewithsec.length - 6);
+let room = 0;
 const DATA = [
   {
     time: "00h00",
@@ -105,7 +106,31 @@ const Item = styled(Paper)(({ theme }) => ({
 
 function Dashboard() {
   const [lightValue, setLightValue] = useState(false);
-  const [fanVolume, setFanVolume] = useState(0);
+  const [fanVolume, setFanVolume] = useState([]);
+  const [TEMP, setTemp] = useState([]);
+  const [HUMI, setHumi] = useState([]);
+  useEffect(function effectFunction() {
+    fetch(`http://localhost:5000/api/light/` + "?room=" + room)
+      .then((response) => response.json())
+      .then(({ message: light }) => {
+        setLightValue(light == 1 ? true : false);
+      });
+    fetch(`http://localhost:5000/api/fan/` + "?room=" + room)
+      .then((response) => response.json())
+      .then(({ message: fan }) => {
+        setFanVolume(parseInt(fan));
+      });
+    fetch(`http://localhost:5000/api/temp/` + "?room=" + room)
+      .then((response) => response.json())
+      .then(({ message: temp }) => {
+        setTemp(temp);
+      });
+    fetch(`http://localhost:5000/api/humi/` + "?room=" + room)
+      .then((response) => response.json())
+      .then(({ message: humi }) => {
+        setHumi(humi);
+      });
+  }, []);
 
   async function onChangeLight(e) {
     e.preventDefault();
@@ -116,7 +141,7 @@ function Dashboard() {
       topic: "haiche198/feeds/yolo-led",
       data: data,
     };
-    await fetch("http://localhost:5000/light/add", {
+    await fetch("http://localhost:5000/api/light/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -128,15 +153,16 @@ function Dashboard() {
     });
   }
 
-  async function onChangeFan(e, val) {
-    e.preventDefault();
-    setFanVolume(val);
-    console.log(fanVolume);
+  const timerRef = useRef();
+
+  async function expensiveCallback(value) {
+    setFanVolume(value); // <-- finally update state, or anything else really
+    console.log("expensiveCallback", value);
     let newData = {
       topic: "haiche198/feeds/yolo-fan",
-      data: String(fanVolume),
+      data: String(value),
     };
-    await fetch("http://localhost:5000/fan/add", {
+    await fetch("http://localhost:5000/api/fan/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -148,8 +174,14 @@ function Dashboard() {
     });
   }
 
-  const [TEMP, setTemp] = useState([]);
-  const [HUMI, setHumi] = useState([]);
+  async function handleFanChange(e) {
+    const { value } = e.target;
+
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      expensiveCallback(value); // <-- re-enclose latest value
+    }, 250); // <-- tune this value to what feels best for you
+  }
 
   useEffect(() => {
     let timer;
@@ -165,7 +197,9 @@ function Dashboard() {
   }, []);
 
   async function fetchTemp() {
-    const response = await fetch(`http://localhost:5000/temp/`);
+    const response = await fetch(
+      `http://localhost:5000/api/temp/` + "?room=" + room
+    );
 
     if (!response.ok) {
       const message = `An error occured: ${response.statusText}`;
@@ -178,7 +212,9 @@ function Dashboard() {
   }
 
   async function fetchHumi() {
-    const response = await fetch(`http://localhost:5000/humi/`);
+    const response = await fetch(
+      `http://localhost:5000/api/humi/` + "?room=" + room
+    );
 
     if (!response.ok) {
       const message = `An error occured: ${response.statusText}`;
@@ -310,9 +346,6 @@ function Dashboard() {
           <Grid item xs={12}>
             <Box sx={{ marginLeft: MARGIN_LEFT, display: "flex" }}>
               <h6>Thiết bị và Cảm biến</h6>
-              <Box sx={{ marginLeft: "40px" }}>
-                <FontAwesomeIcon icon={faGear} />
-              </Box>
             </Box>
           </Grid>
 
@@ -342,6 +375,7 @@ function Dashboard() {
                     />
                     <p style={{ marginTop: "4px" }}>{light.name}</p>
                     <Switch
+                      checked={lightValue}
                       sx={{ position: "absolute", right: "0" }}
                       onChange={(e) => {
                         onChangeLight(e);
@@ -380,16 +414,14 @@ function Dashboard() {
                     {/* <Switch sx={{ position: "absolute", right: "0" }} /> */}
                     <Slider
                       aria-label="Temperature"
-                      defaultValue={0}
+                      value={fanVolume}
                       valueLabelDisplay="auto"
                       step={25}
                       marks
                       min={0}
                       max={100}
                       sx={{ position: "absolute", right: "0", width: "60%" }}
-                      onChange={(e, val) => {
-                        onChangeFan(e, val);
-                      }}
+                      onChange={handleFanChange}
                     />
                   </Box>
                 </Box>
@@ -421,7 +453,6 @@ function Dashboard() {
                       }}
                     />
                     <p style={{ marginTop: "4px" }}>{sensor.name}</p>
-                    <Switch sx={{ position: "absolute", right: "0" }} />
                   </Box>
                 </Box>
               ))}
