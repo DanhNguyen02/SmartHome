@@ -116,14 +116,14 @@ const RangeField = ({ type, device={} }) => {
 
 const ShowRange = ({ isAdd, sensor, device={} }) => {
     if (isAdd) {
-        if (sensor !== 'none') {
+        if (sensor !== 'none' && sensor !== 'other') {
             return (
                 <Box sx={{ my: 1, display: 'flex', justifyContent: 'space-between' }}>
                     <RangeField type='min' device={{ type: sensor }}/>
                     <RangeField type='max' device={{ type: sensor }}/>
                 </Box>
             )
-        }
+        } else return null;
     } else if (device.type) {
         if (sensor === 'temp' || sensor === 'humid') {
             return (
@@ -133,12 +133,14 @@ const ShowRange = ({ isAdd, sensor, device={} }) => {
                 </Box>
             )
         } else if (sensor === 'other') return null;
-        else return (
-            <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
-                <RangeField type='min' device={device.type}/>
-                <RangeField type='max' device={device.type}/>
-            </Box>
-        )
+        else if (sensor === 'none') {
+            return (
+                <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
+                    <RangeField type='min' device={device.type}/>
+                    <RangeField type='max' device={device.type}/>
+                </Box>
+            )
+        }
     } else return null;   
 }  
 

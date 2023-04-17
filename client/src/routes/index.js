@@ -19,7 +19,7 @@ const publicRoutes = [
 const privateRoutes = [
     { path: "/", component: Dashboard, layout: DefaultLayout },
     { path: "/dashboard", component: Dashboard, layout: DefaultLayout },
-    //{ path: "/devices", component: Devices, layout: DefaultLayout },
+    { path: "/devices", component: Devices, layout: DefaultLayout },
     { path: "/profile", component: Profile, layout: DefaultLayout },
     { path: "/history", component: History, layout: DefaultLayout },
     { path: "/rooms", component: Rooms, layout: DefaultLayout },
