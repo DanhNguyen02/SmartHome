@@ -70,7 +70,7 @@ const GenderSelect = () => {
                 <Select
                     labelId="gender-select-label"
                     id="gender-select"
-                    label="Gender"
+                    label="Giới tính"
                     defaultValue="null"
                     startAdornment={
                         <InputAdornment position="start">
@@ -131,23 +131,23 @@ const ConfirmButton = () => {
 }
 
 export default function Page() {
-    // const [user, setUser] = useState(null);
-    // useEffect(() => {
-    //     async function fetchUser() {
-    //         try {
-    //             const token = localStorage.getItem('accessToken');
-    //             const response = await axios.get('http://localhost:5000/api/profile', {
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             });
-    //             setUser(response.data);
-    //         } catch (err) {
-    //             
-    //         }
-    //     }
-    //     fetchUser();
-    // }, []);
+    const [user, setUser] = useState(null);
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const token = localStorage.getItem('accessToken');
+                const response = await axios.get('http://localhost:5000/api/profile', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setUser(response.data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        fetchUser();
+    }, []);
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -171,12 +171,14 @@ export default function Page() {
                 <Grid container spacing={2} item xs={12} sx={{'& > .MuiGrid-item': {pt: 0}}}>
                     <Grid item xs={6} sx={{px: 12}}>
                         <Field type='fullname' label='Họ và tên'/>
-                        <Field type='email' label='Địa chỉ email'/>
-                        <Field type='phone' label='Số điện thoại'/>
+                        <Field type='email' label='Địa chỉ email' value={user?.email}/>
+                        <Field type='username' label='Adafruit IO Username'/>
+                        <Field type='activekey' label='Adafruit IO Active key'/>
                     </Grid>
                     <Grid item xs={6} sx={{px: 12}}>
                         <GenderSelect/>
                         <BirthSelect/>
+                        <Field type='phone' label='Số điện thoại'/>
                         <Field type='address' label='Địa chỉ'/>
                     </Grid>
                     <Grid item xs={6} sx={{mt: 4, display: 'flex', px: 12}}>

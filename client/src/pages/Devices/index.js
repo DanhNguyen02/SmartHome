@@ -11,10 +11,7 @@ import {Grid,
         FormControl,
         InputLabel,
         Select,
-        Button,
-        RadioGroup,
-        Radio,
-        FormControlLabel,}
+        Button,}
     from '@mui/material';
 
 import {CloseOutlined,}
@@ -82,8 +79,73 @@ const Data = [
     },
 ]
 
+const RangeField = ({ type, device={} }) => {
+    return (
+        <Box sx={{ width: '130px' }}>
+            <Typography variant="subtitle1">
+                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>
+                    { type === 'min' ? 'Ngưỡng thấp nhất' : 'Ngưỡng cao nhất' }
+                </p>
+            </Typography>
+            <TextField
+                required
+                fullWidth
+                id={`${type}-${device.id}`}
+                name={`${type}-${device.id}`}
+                defaultValue={ type === 'min' ? device.min : device.max }
+                type='number'
+                autoComplete={`${type}-${device.id}`}
+                sx={{
+                    '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#6C63FF',
+                    },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#6C63FF',
+                    },
+                }}
+                InputProps={{
+                    endAdornment: (
+                        <Typography variant="subtitle1" sx={{ color: 'gray' }}>
+                            { device.type === 'temp' ? '°C' : '%' }
+                        </Typography>
+                    ),
+                }}/>
+        </Box>
+    )
+}
+
+const ShowRange = ({ isAdd, sensor, device={} }) => {
+    if (isAdd) {
+        if (sensor !== 'none' && sensor !== 'other') {
+            return (
+                <Box sx={{ my: 1, display: 'flex', justifyContent: 'space-between' }}>
+                    <RangeField type='min' device={{ type: sensor }}/>
+                    <RangeField type='max' device={{ type: sensor }}/>
+                </Box>
+            )
+        } else return null;
+    } else if (device.type) {
+        if (sensor === 'temp' || sensor === 'humid') {
+            return (
+                <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
+                    <RangeField type='min' device={{ type: sensor }}/>
+                    <RangeField type='max' device={{ type: sensor }}/>
+                </Box>
+            )
+        } else if (sensor === 'other') return null;
+        else if (sensor === 'none') {
+            return (
+                <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
+                    <RangeField type='min' device={device.type}/>
+                    <RangeField type='max' device={device.type}/>
+                </Box>
+            )
+        }
+    } else return null;   
+}  
+
 const ModalButton = (props) => {
-    const bgcolor = props.type === 'update' ? '#6C63FF' : 'Red'
+    const bgcolor = props.type === 'update' || props.type === 'add' ? '#6C63FF' : 'Red'
     return (
         <Button
             type="button"                   
@@ -101,19 +163,220 @@ const ModalButton = (props) => {
                     color: bgcolor,
                 },
             }}>
-            {props.type === 'update' ? 'Cập nhật' : 'Xóa'}
+            {
+                (() => {
+                    switch (props.type) {
+                        case 'add':
+                            return 'Thêm';
+                        case 'update':
+                            return 'Cập nhật';
+                        case 'delete':
+                            return 'Xóa';
+                        default:
+                            return '';
+                    }
+                })()
+            }
         </Button>
     )
 }
 
-const SwitchItem = (props) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
+    const [sensor, setSensor] = useState('none'); 
+    return (
+        <Modal 
+            open={isModalOpen}
+            onClose={() => {setModalOpen(false); setSensor('none');}}
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+            <Box
+                sx={{width: '400px',
+                    maxWidth: '80vw',
+                    position: 'fixed',
+                    top: '2%',
+                    bgcolor: 'background.paper',
+                    p: 2,
+                    borderRadius: '20px',
+                    border: 'none' }}>
+                
+                {/* Title của modal */}
+                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" component="h2" sx={{ display: 'flex', mr: 8}}>
+                        {
+                            isAdd ?
+                                <p style={{ margin: "0", color: 'black', fontSize: 16 }}>Thêm thiết bị mới cho phòng</p>
+                                :
+                                <>
+                                    <p style={{ margin: "0", color: 'black', fontSize: 16 }}>{device.name}&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                                    <p style={{ margin: '0', color: 'gray', fontSize: 16 }}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device.room}</p>
+                                </>
 
-    const RoomMapping = {
-        'Phòng khách': 'living',
-        'Phòng ngủ': 'bed',
-        'Phòng vệ sinh': 'toilet',
-    }
+                        }
+                    </Typography>
+                    <IconButton onClick={() => {setModalOpen(false); setSensor('none');}}>
+                        <CloseOutlined />
+                    </IconButton>
+                </Box>
+
+                <Box sx={{m: 3}}>
+                    <FormControl fullWidth>
+
+                        {/* Nhập tên thiết bị */}
+                        <Box sx={{mb: 1}}>
+                            <Typography variant="subtitle1">
+                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Tên thiết bị</p>
+                            </Typography>
+                            <TextField
+                                required
+                                fullWidth
+                                id={'name-' + device.id}
+                                name={'name-' + device.id}
+                                defaultValue={device.name}
+                                autoComplete={'name-' + device.id}
+                                sx={{
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#6C63FF',
+                                    },
+                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#6C63FF',
+                                    },
+                                    
+                                }}/>
+                        </Box>
+
+                        {/* Nhập feed key cho thiết bị */}
+                        <Box sx={{mb: 1}}>
+                            <Typography variant="subtitle1">
+                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Feed key</p>
+                            </Typography>
+                            <TextField
+                                required
+                                fullWidth
+                                id={'feed-' + device.id}
+                                name={'feed-' + device.id}
+                                defaultValue={device.feed}
+                                autoComplete={'feed-' + device.id}
+                                sx={{
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#6C63FF',
+                                    },
+                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#6C63FF',
+                                    },
+                                    
+                                }}/>
+                        </Box>
+
+                        {/* Chọn loại thiết bị */}
+                        <Box sx={{my: 1}}>
+                            <Grid container justifyItems="flex-start" sx={{my: 1}}>
+                                <FormControl
+                                    fullWidth
+                                        sx={{
+                                        '& .MuiInputLabel-root.Mui-focused': {
+                                            color: '#6C63FF'
+                                        },
+                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: '#6C63FF'
+                                        }
+                                        }}>
+                                    <InputLabel id="type-select-label">Loại thiết bị</InputLabel>
+                                    <Select
+                                        labelId="type-select-label"
+                                        label="Loại thiết bị"
+                                        id={'type-' + device.id}
+                                        defaultValue={device.type}
+                                        onChange={(event) => {
+                                            const selectedValue = event.target.value;
+                                            if (selectedValue === 'temp') setSensor('temp');
+                                            else if (selectedValue === 'humid') setSensor('humid');
+                                            else setSensor('other');
+                                        }}>
+                                        <MenuItem value="light">Đèn</MenuItem>
+                                        <MenuItem value="fan">Quạt</MenuItem>
+                                        <MenuItem value="temp">Cảm biến nhiệt độ</MenuItem>
+                                        <MenuItem value="humid">Cảm biến độ ẩm</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Box>
+
+                        {/* Nhập mô tả */}
+                        <Box sx={{my: 1}}>
+                            <Typography variant="subtitle1">
+                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Mô tả</p>
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                multiline
+                                rows={3}
+                                id={'description-' + device.id}
+                                name={'description-' + device.id}
+                                autoComplete={'description-' + device.id}
+                                value={device.description}
+                                sx={{
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#6C63FF',
+                                    },
+                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#6C63FF',
+                                    },
+                                }}/>
+                        </Box>
+
+                        {/* Nhập ngưỡng giới hạn cho thiết bị */}
+                        <ShowRange isAdd={isAdd} sensor={sensor} device={device}/>
+
+                        {/* Nút bấm cho modal */}
+                        <Box sx={{my: 1, display: 'flex', justifyContent: 'center'}}>
+                            {
+                                isAdd ?
+                                    <ModalButton type='add'/>                                    
+                                    : 
+                                    <>
+                                        <ModalButton type='delete'/>
+                                        <ModalButton type='update'/> 
+                                    </> 
+                            }
+                        </Box>
+                    </FormControl>
+                </Box>
+            </Box>
+        </Modal>
+    )
+}
+
+const AddDevice = () => {
+    const [isModalOpen, setModalOpen] = useState(false);
+    return (
+        <>
+            <Button
+                type="submit"
+                onClick={() => setModalOpen(true)}
+                variant="contained"
+                sx = {{
+                    mx: 2, 
+                    p: 1,
+                    backgroundColor: '#6C63FF',
+                    fontSize: 12,
+                    width: 120,
+                    '&:hover': {
+                        backgroundColor: 'white',
+                        color: '#6C63FF',
+                    },
+                }}>
+                Thêm thiết bị
+            </Button>
+            <DeviceModal isAdd={true} isModalOpen={isModalOpen} setModalOpen={setModalOpen}/>
+        </>
+    )
+}
+
+const SwitchItem = (props) => {
+    const [isModalOpen, setModalOpen] = useState(false);
 
     const IconMapping = {
         'light': LightIcon,
@@ -132,7 +395,7 @@ const SwitchItem = (props) => {
     return (
         <>
             <Box 
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setModalOpen(true)}
                 sx={{
                     p: 1,
                     mt: "10px",
@@ -158,144 +421,19 @@ const SwitchItem = (props) => {
                 <p style={{marginBottom: '0', color: 'black'}}>{device()['name']}&nbsp;&nbsp;&nbsp;&nbsp;</p>
                 <p style={{marginBottom: '0',}}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device()['room']}</p>
             </Box>
-            <Modal 
-                open={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                <Box sx={{width: '400px',
-                        maxWidth: '80vw',
-                        position: 'fixed',
-                        top: '7%',
-                        bgcolor: 'background.paper',
-                        p: 2,
-                        borderRadius: '20px',
-                        border: 'none' }}>
-                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="h6" component="h2" sx={{ display: 'flex', mr: 8}}>
-                            <p style={{ margin: "0", color: 'black', fontSize: 16}}>{device()['name']}&nbsp;&nbsp;&nbsp;&nbsp;</p>
-                            <p style={{margin: '0', color: 'gray', fontSize: 16}}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device()['room']}</p>
-                        </Typography>
-                        <IconButton onClick={() => setIsModalOpen(false)}>
-                            <CloseOutlined />
-                        </IconButton>
-                    </Box>
-                    <Box sx={{m: 3}}>
-                        <FormControl fullWidth>
-                            <Box sx={{mb: 1}}>
-                                <Typography variant="subtitle1">
-                                    <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Tên thiết bị</p>
-                                </Typography>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    id={'name-' + props.id}
-                                    name={'name-' + props.id}
-                                    defaultValue={device()['name']}
-                                    autoComplete={'name-' + props.id}
-                                    sx={{
-                                        '& .MuiInputLabel-root.Mui-focused': {
-                                            color: '#6C63FF',
-                                        },
-                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#6C63FF',
-                                        },
-                                        
-                                    }}/>
-                            </Box>
-                            <Box sx={{my: 1}}>
-                                <Typography variant="subtitle1">
-                                    <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Mô tả</p>
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    rows={3}
-                                    id={'description-' + props.id}
-                                    name={'description-' + props.id}
-                                    autoComplete={'description-' + props.id}
-                                    sx={{
-                                        '& .MuiInputLabel-root.Mui-focused': {
-                                            color: '#6C63FF',
-                                        },
-                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#6C63FF',
-                                        },
-                                    }}/>
-                            </Box>
-                            <Box sx={{my: 1}}>
-                                <Grid container justifyItems="flex-start" sx={{my: 1}}>
-                                    <FormControl
-                                        fullWidth
-                                        sx={{
-                                        '& .MuiInputLabel-root.Mui-focused': {
-                                            color: '#6C63FF'
-                                        },
-                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#6C63FF'
-                                        }
-                                        }}>
-                                        <InputLabel 
-                                            id="room-select-label">
-                                            Phòng
-                                        </InputLabel>
-                                        <Select
-                                            labelId="room-select-label"
-                                            id={'room-' + props.id}
-                                            label="Room"
-                                            defaultValue={RoomMapping[device()['room']]}
-                                            sx={{
-                                                
-                                            }}>
-                                            <MenuItem value="living">Phòng khách</MenuItem>
-                                            <MenuItem value="bed">Phòng ngủ</MenuItem>
-                                            <MenuItem value="toilet">Phòng vệ sinh</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                            </Box>                
-                            <Box sx={{my: 1}}>
-                                <Typography variant="subtitle1">
-                                    <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Chế độ</p>
-                                </Typography>
-                                <FormControl component="fieldset">
-                                    <RadioGroup row aria-label="mode" name="mode" defaultValue="auto">
-                                        <FormControlLabel
-                                            value="auto"
-                                            control={<Radio />}
-                                            label="Tự động"
-                                            sx={{'& .Mui-checked .MuiSvgIcon-root': {color: '#6C63FF'}}}/>
-                                        <FormControlLabel
-                                            value="manual"
-                                            control={<Radio />}
-                                            label="Thủ công"
-                                            sx={{'& .Mui-checked .MuiSvgIcon-root': {color: '#6C63FF'}}}/>
-                                    </RadioGroup>
-                                </FormControl>
-                            </Box>
-                            <Box sx={{my: 1, display: 'flex', justifyContent: 'center'}}>
-                                <ModalButton type='delete'/>
-                                <ModalButton type='update'/>
-                            </Box>
-                        </FormControl>
-                    </Box>
-                </Box>
-            </Modal>
+            <DeviceModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} device={{ type: 'temp' }}/>
         </>
     )
 }
 
-
 export default function Page () {
     return (
         <Grid spacing={2} sx={{m: 4}}>
-            <Grid xs={12} sx={{p: 1}}>
-                <Typography color='primary' sx={{fontWeight: 'bold', fontSize: '1.25rem', color: 'secondary'}}>
+            <Grid xs={12} sx={{p: 1, display: 'flex', alignItems: 'center'}}>
+                <Typography color='primary' sx={{mr: 2, fontWeight: 'bold', fontSize: '1.25rem', color: 'secondary'}}>
                     Thiết bị và Cảm biến
                 </Typography>
+                <AddDevice/>
             </Grid>
             <Grid container sx={{my: 2}}>
                 <Grid xs={4} sx={{p: 1}}>
