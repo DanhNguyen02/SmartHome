@@ -70,7 +70,7 @@ const GenderSelect = () => {
                 <Select
                     labelId="gender-select-label"
                     id="gender-select"
-                    label="Gender"
+                    label="Giới tính"
                     defaultValue="null"
                     startAdornment={
                         <InputAdornment position="start">

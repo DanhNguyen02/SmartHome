@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const dbo = require('../db/conn');
-const User = require('../models/user');
+const User = require('../models/userModels');
 
 router.post(
     '/adddevice',

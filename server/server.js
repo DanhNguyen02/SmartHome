@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(require("./routes/record"));
-app.use("/auth", require("./routes/auth"));
+app.use("/auth", require("./routes/authRoutes"));
 app.use("/api", require("./routes/profile"));
 app.use("/api", require("./routes/device"));
 // get driver connection

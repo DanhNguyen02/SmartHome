@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const deviceSchema = new mongoose.Schema({
+    _id: mongoose.Types.ObjectId,
     name: {
         type: String,
         trim: true
@@ -13,6 +14,10 @@ const deviceSchema = new mongoose.Schema({
     type: {
         type: String,
         enum: ['light', 'fan', 'temp', 'humid']
+    },
+    description: {
+        type: String,
+        default: ''
     },
     room: {
         type: String,
