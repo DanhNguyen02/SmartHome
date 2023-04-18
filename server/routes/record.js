@@ -1,25 +1,19 @@
 const express = require("express");
 
-// recordRoutes is an instance of the express router.
-// We use it to define our routes.
-// The router will be added as a middleware and will take control of requests starting with path /record.
 const recordRoutes = express.Router();
 
-// This will help us connect to the database
 const dbo = require("../db/conn");
 const mqtt = require("../mqtt/conn");
 
-// This help convert the id from string to ObjectId for the _id.
 const ObjectId = require("mongodb").ObjectId;
 
-// This section will help you get a temp of current.
 recordRoutes.route("/temp").get(function (req, res) {
   let db_connect = dbo.getDb();
   let devices;
   let feed;
   db_connect.collection("user").findOne({}, function (err, result) {
     if (err) throw err;
-    devices = result.rooms[parseInt(req.body.room)].devices;
+    devices = result.rooms[parseInt(req.query.room)].devices;
     feed = devices.find((x) => x.type === "temp").feed;
     db_connect
       .collection(feed)
@@ -32,15 +26,33 @@ recordRoutes.route("/temp").get(function (req, res) {
   });
 });
 
-// This section will help you get a humi of current.
 recordRoutes.route("/humi").get(function (req, res) {
   let db_connect = dbo.getDb();
   let devices;
   let feed;
   db_connect.collection("user").findOne({}, function (err, result) {
     if (err) throw err;
-    devices = result.rooms[parseInt(req.body.room)].devices;
+    devices = result.rooms[parseInt(req.query.room)].devices;
     feed = devices.find((x) => x.type === "humi").feed;
+    db_connect
+      .collection(feed)
+      .find()
+      .sort({ _id: -1 })
+      .toArray(function (err, result) {
+        if (err) throw err;
+        res.json(result[0]);
+      });
+  });
+});
+
+recordRoutes.route("/light").get(function (req, res) {
+  let db_connect = dbo.getDb();
+  let devices;
+  let feed;
+  db_connect.collection("user").findOne({}, function (err, result) {
+    if (err) throw err;
+    devices = result.rooms[parseInt(req.query.room)].devices;
+    feed = devices.find((x) => x.type === "light").feed;
     db_connect
       .collection(feed)
       .find()
@@ -55,6 +67,25 @@ recordRoutes.route("/humi").get(function (req, res) {
 recordRoutes.route("/light").post(function (req, response) {
   mqtt.publish(req.body.topic, req.body.data);
   response.json({ data: req.body.data });
+});
+
+recordRoutes.route("/fan").get(function (req, res) {
+  let db_connect = dbo.getDb();
+  let devices;
+  let feed;
+  db_connect.collection("user").findOne({}, function (err, result) {
+    if (err) throw err;
+    devices = result.rooms[parseInt(req.query.room)].devices;
+    feed = devices.find((x) => x.type === "fan").feed;
+    db_connect
+      .collection(feed)
+      .find()
+      .sort({ _id: -1 })
+      .toArray(function (err, result) {
+        if (err) throw err;
+        res.json(result[0]);
+      });
+  });
 });
 
 recordRoutes.route("/fan").post(function (req, response) {

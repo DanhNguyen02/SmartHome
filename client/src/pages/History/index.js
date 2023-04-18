@@ -32,7 +32,6 @@ function History() {
   }, []);
 
   async function fetchListRooms() {
-    // const response = fetch("http://localhost:5000/rooms");
     const response = await fetch('http://localhost:5000/api/rooms', {
       method: 'GET',
       headers: {

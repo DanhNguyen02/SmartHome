@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(require("./routes/record"));
+app.use("/api", require("./routes/record"));
 app.use("/auth", require("./routes/authRoutes"));
 app.use("/api", require("./routes/profile"));
 app.use("/api", require("./routes/device"));

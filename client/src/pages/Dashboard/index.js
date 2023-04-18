@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { styled } from "@mui/material/styles";
 import {
   Typography,
@@ -11,6 +11,8 @@ import {
   Grid,
   Switch,
   Slider,
+  Autocomplete,
+  TextField
 } from "@mui/material";
 import {
   LineChart,
@@ -22,16 +24,16 @@ import {
   YAxis,
 } from "recharts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faGear } from "@fortawesome/free-solid-svg-icons";
 import LightIcon from "../../assets/images/lightIcon.png";
 import FanIcon from "../../assets/images/fanIcon.png";
 import SensorIcon from "../../assets/images/sensorIcon.png";
 
 const MARGIN_LEFT = "20px";
-const ROOM = "Phòng ngủ chính";
 const today = new Date().toLocaleDateString();
 var timewithsec = new Date().toLocaleTimeString();
 const time = timewithsec.substring(0, timewithsec.length - 6);
+let room = 0;
 const DATA = [
   {
     time: "00h00",
@@ -70,32 +72,6 @@ const DATA = [
   },
 ];
 
-const LIGHT = [
-  {
-    name: "Đèn trần 1",
-    toggle: false,
-    brightness: 0,
-  },
-];
-
-const FAN = [
-  {
-    name: "Quạt 1",
-    toggle: false,
-  },
-];
-
-const SENSOR = [
-  {
-    name: "Nhiệt độ",
-    toggle: false,
-  },
-  {
-    name: "Độ ẩm",
-    toggle: false,
-  },
-];
-
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
@@ -105,7 +81,58 @@ const Item = styled(Paper)(({ theme }) => ({
 
 function Dashboard() {
   const [lightValue, setLightValue] = useState(false);
-  const [fanVolume, setFanVolume] = useState(0);
+  const [fanVolume, setFanVolume] = useState([]);
+  const [TEMP, setTemp] = useState([]);
+  const [HUMI, setHumi] = useState([]);
+  const [theRoom, setRoom] = useState(null);
+  const [nameRoom, setNameRoom] = useState(null)
+  useEffect(function effectFunction() {
+    fetch(`http://localhost:5000/api/light/` + "?room=" + room)
+      .then((response) => response.json())
+      .then(({ message: light }) => {
+        setLightValue(light == 1 ? true : false);
+      });
+    fetch(`http://localhost:5000/api/fan/` + "?room=" + room)
+      .then((response) => response.json())
+      .then(({ message: fan }) => {
+        setFanVolume(parseInt(fan));
+      });
+    fetch(`http://localhost:5000/api/temp/` + "?room=" + room)
+      .then((response) => response.json())
+      .then(({ message: temp }) => {
+        setTemp(temp);
+      });
+    fetch(`http://localhost:5000/api/humi/` + "?room=" + room)
+      .then((response) => response.json())
+      .then(({ message: humi }) => {
+        setHumi(humi);
+      });
+  }, []);
+
+  const [listRooms, setListRooms] = useState([]);
+
+  // Fetch list rooms
+  useEffect(() => {
+    fetchListRooms();
+  }, []);
+
+  async function fetchListRooms() {
+    const response = await fetch('http://localhost:5000/api/rooms', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      const message = `An error occured: ${response.statusText}`;
+      window.alert(message);
+      return;
+    }
+
+    const record = await response.json();
+    setListRooms(record);
+  }
 
   async function onChangeLight(e) {
     e.preventDefault();
@@ -116,7 +143,7 @@ function Dashboard() {
       topic: "haiche198/feeds/yolo-led",
       data: data,
     };
-    await fetch("http://localhost:5000/light/add", {
+    await fetch("http://localhost:5000/api/light/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -128,15 +155,16 @@ function Dashboard() {
     });
   }
 
-  async function onChangeFan(e, val) {
-    e.preventDefault();
-    setFanVolume(val);
-    console.log(fanVolume);
+  const timerRef = useRef();
+
+  async function expensiveCallback(value) {
+    setFanVolume(value); // <-- finally update state, or anything else really
+    console.log("expensiveCallback", value);
     let newData = {
       topic: "haiche198/feeds/yolo-fan",
-      data: String(fanVolume),
+      data: String(value),
     };
-    await fetch("http://localhost:5000/fan/add", {
+    await fetch("http://localhost:5000/api/fan/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -148,8 +176,14 @@ function Dashboard() {
     });
   }
 
-  const [TEMP, setTemp] = useState([]);
-  const [HUMI, setHumi] = useState([]);
+  async function handleFanChange(e) {
+    const { value } = e.target;
+
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      expensiveCallback(value); // <-- re-enclose latest value
+    }, 250); // <-- tune this value to what feels best for you
+  }
 
   useEffect(() => {
     let timer;
@@ -165,7 +199,9 @@ function Dashboard() {
   }, []);
 
   async function fetchTemp() {
-    const response = await fetch(`http://localhost:5000/temp/`);
+    const response = await fetch(
+      `http://localhost:5000/api/temp/` + "?room=" + room
+    );
 
     if (!response.ok) {
       const message = `An error occured: ${response.statusText}`;
@@ -178,7 +214,9 @@ function Dashboard() {
   }
 
   async function fetchHumi() {
-    const response = await fetch(`http://localhost:5000/humi/`);
+    const response = await fetch(
+      `http://localhost:5000/api/humi/` + "?room=" + room
+    );
 
     if (!response.ok) {
       const message = `An error occured: ${response.statusText}`;
@@ -196,7 +234,23 @@ function Dashboard() {
         <Link underline="hover" color="inherit" href="/">
           Dashboard
         </Link>
-        <Typography color="text.primary">{ROOM}</Typography>
+        {/* <Typography color="text.primary">{ROOM}</Typography> */}
+        <Autocomplete
+          disablePortal
+          id="listrooms"
+          value={nameRoom}
+          onChange={(event, nameRoom) => {
+            for (let room of listRooms) {
+              if (room.name === nameRoom) {
+                setRoom(listRooms.indexOf(room));
+              }
+            }
+            setNameRoom(nameRoom);
+          }}
+          options={listRooms.map((room) => room.name)}
+          sx={{ width: 160 }}
+          renderInput={(params) => <TextField {...params} label="Chọn phòng" />}
+        />
       </Breadcrumbs>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
@@ -204,7 +258,7 @@ function Dashboard() {
             <Item sx={{ minHeight: "350px" }}>
               <Box sx={{ position: "relative" }}>
                 <p>Biểu đồ dữ liệu</p>
-                <h5>{ROOM}</h5>
+                <h5>{theRoom == null ? theRoom : listRooms[theRoom].name}</h5>
                 <Link href="/history">
                   <Button
                     variant="outlined"
@@ -214,6 +268,7 @@ function Dashboard() {
                   </Button>
                 </Link>
               </Box>
+              {theRoom != null ? 
               <Box
                 sx={{
                   width: "100%",
@@ -254,8 +309,7 @@ function Dashboard() {
                     />
                   </LineChart>
                 </ResponsiveContainer>
-                <Box></Box>
-              </Box>
+              </Box> : <></>}
             </Item>
           </Grid>
           <Grid item xs={4}>
@@ -310,16 +364,14 @@ function Dashboard() {
           <Grid item xs={12}>
             <Box sx={{ marginLeft: MARGIN_LEFT, display: "flex" }}>
               <h6>Thiết bị và Cảm biến</h6>
-              <Box sx={{ marginLeft: "40px" }}>
-                <FontAwesomeIcon icon={faGear} />
-              </Box>
             </Box>
           </Grid>
 
           <Grid item xs={4}>
             <Item>
               <p>Đèn</p>
-              {LIGHT.map((light) => (
+              {theRoom != null ? listRooms[theRoom].devices.filter(
+                (device) => device.type == 'light').map((light) => (
                 <Box key={light.name}>
                   <Box
                     sx={{
@@ -342,6 +394,7 @@ function Dashboard() {
                     />
                     <p style={{ marginTop: "4px" }}>{light.name}</p>
                     <Switch
+                      checked={lightValue}
                       sx={{ position: "absolute", right: "0" }}
                       onChange={(e) => {
                         onChangeLight(e);
@@ -349,13 +402,14 @@ function Dashboard() {
                     />
                   </Box>
                 </Box>
-              ))}
+              )) : <></>}
             </Item>
           </Grid>
           <Grid item xs={4}>
             <Item>
               <p>Máy lạnh và quạt</p>
-              {FAN.map((fan) => (
+              {theRoom != null ? listRooms[theRoom].devices.filter(
+                (device) => device.type == 'fan').map((fan) => (
                 <Box key={fan.name}>
                   <Box
                     sx={{
@@ -380,26 +434,25 @@ function Dashboard() {
                     {/* <Switch sx={{ position: "absolute", right: "0" }} /> */}
                     <Slider
                       aria-label="Temperature"
-                      defaultValue={0}
+                      value={fanVolume}
                       valueLabelDisplay="auto"
                       step={25}
                       marks
                       min={0}
                       max={100}
                       sx={{ position: "absolute", right: "0", width: "60%" }}
-                      onChange={(e, val) => {
-                        onChangeFan(e, val);
-                      }}
+                      onChange={handleFanChange}
                     />
                   </Box>
                 </Box>
-              ))}
+              )) : <></>}
             </Item>
           </Grid>
           <Grid item xs={4}>
             <Item>
               <p>Cảm biến</p>
-              {SENSOR.map((sensor) => (
+              {theRoom != null ? listRooms[theRoom].devices.filter(
+                (device) => device.type == 'temp' || device.type == 'humi').map((sensor) => (
                 <Box key={sensor.name}>
                   <Box
                     sx={{
@@ -421,10 +474,9 @@ function Dashboard() {
                       }}
                     />
                     <p style={{ marginTop: "4px" }}>{sensor.name}</p>
-                    <Switch sx={{ position: "absolute", right: "0" }} />
                   </Box>
                 </Box>
-              ))}
+              )) : <></>}
             </Item>
           </Grid>
         </Grid>
