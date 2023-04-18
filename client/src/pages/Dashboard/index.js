@@ -11,6 +11,8 @@ import {
   Grid,
   Switch,
   Slider,
+  Autocomplete,
+  TextField
 } from "@mui/material";
 import {
   LineChart,
@@ -28,7 +30,6 @@ import FanIcon from "../../assets/images/fanIcon.png";
 import SensorIcon from "../../assets/images/sensorIcon.png";
 
 const MARGIN_LEFT = "20px";
-const ROOM = "Phòng ngủ chính";
 const today = new Date().toLocaleDateString();
 var timewithsec = new Date().toLocaleTimeString();
 const time = timewithsec.substring(0, timewithsec.length - 6);
@@ -71,32 +72,6 @@ const DATA = [
   },
 ];
 
-const LIGHT = [
-  {
-    name: "Đèn trần 1",
-    toggle: false,
-    brightness: 0,
-  },
-];
-
-const FAN = [
-  {
-    name: "Quạt 1",
-    toggle: false,
-  },
-];
-
-const SENSOR = [
-  {
-    name: "Nhiệt độ",
-    toggle: false,
-  },
-  {
-    name: "Độ ẩm",
-    toggle: false,
-  },
-];
-
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
@@ -109,6 +84,8 @@ function Dashboard() {
   const [fanVolume, setFanVolume] = useState([]);
   const [TEMP, setTemp] = useState([]);
   const [HUMI, setHumi] = useState([]);
+  const [theRoom, setRoom] = useState(null);
+  const [nameRoom, setNameRoom] = useState(null)
   useEffect(function effectFunction() {
     fetch(`http://localhost:5000/api/light/` + "?room=" + room)
       .then((response) => response.json())
@@ -131,6 +108,31 @@ function Dashboard() {
         setHumi(humi);
       });
   }, []);
+
+  const [listRooms, setListRooms] = useState([]);
+
+  // Fetch list rooms
+  useEffect(() => {
+    fetchListRooms();
+  }, []);
+
+  async function fetchListRooms() {
+    const response = await fetch('http://localhost:5000/api/rooms', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      const message = `An error occured: ${response.statusText}`;
+      window.alert(message);
+      return;
+    }
+
+    const record = await response.json();
+    setListRooms(record);
+  }
 
   async function onChangeLight(e) {
     e.preventDefault();
@@ -232,7 +234,23 @@ function Dashboard() {
         <Link underline="hover" color="inherit" href="/">
           Dashboard
         </Link>
-        <Typography color="text.primary">{ROOM}</Typography>
+        {/* <Typography color="text.primary">{ROOM}</Typography> */}
+        <Autocomplete
+          disablePortal
+          id="listrooms"
+          value={nameRoom}
+          onChange={(event, nameRoom) => {
+            for (let room of listRooms) {
+              if (room.name === nameRoom) {
+                setRoom(listRooms.indexOf(room));
+              }
+            }
+            setNameRoom(nameRoom);
+          }}
+          options={listRooms.map((room) => room.name)}
+          sx={{ width: 160 }}
+          renderInput={(params) => <TextField {...params} label="Chọn phòng" />}
+        />
       </Breadcrumbs>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
@@ -240,7 +258,7 @@ function Dashboard() {
             <Item sx={{ minHeight: "350px" }}>
               <Box sx={{ position: "relative" }}>
                 <p>Biểu đồ dữ liệu</p>
-                <h5>{ROOM}</h5>
+                <h5>{theRoom == null ? theRoom : listRooms[theRoom].name}</h5>
                 <Link href="/history">
                   <Button
                     variant="outlined"
@@ -250,6 +268,7 @@ function Dashboard() {
                   </Button>
                 </Link>
               </Box>
+              {theRoom != null ? 
               <Box
                 sx={{
                   width: "100%",
@@ -290,8 +309,7 @@ function Dashboard() {
                     />
                   </LineChart>
                 </ResponsiveContainer>
-                <Box></Box>
-              </Box>
+              </Box> : <></>}
             </Item>
           </Grid>
           <Grid item xs={4}>
@@ -352,7 +370,8 @@ function Dashboard() {
           <Grid item xs={4}>
             <Item>
               <p>Đèn</p>
-              {LIGHT.map((light) => (
+              {theRoom != null ? listRooms[theRoom].devices.filter(
+                (device) => device.type == 'light').map((light) => (
                 <Box key={light.name}>
                   <Box
                     sx={{
@@ -383,13 +402,14 @@ function Dashboard() {
                     />
                   </Box>
                 </Box>
-              ))}
+              )) : <></>}
             </Item>
           </Grid>
           <Grid item xs={4}>
             <Item>
               <p>Máy lạnh và quạt</p>
-              {FAN.map((fan) => (
+              {theRoom != null ? listRooms[theRoom].devices.filter(
+                (device) => device.type == 'fan').map((fan) => (
                 <Box key={fan.name}>
                   <Box
                     sx={{
@@ -425,13 +445,14 @@ function Dashboard() {
                     />
                   </Box>
                 </Box>
-              ))}
+              )) : <></>}
             </Item>
           </Grid>
           <Grid item xs={4}>
             <Item>
               <p>Cảm biến</p>
-              {SENSOR.map((sensor) => (
+              {theRoom != null ? listRooms[theRoom].devices.filter(
+                (device) => device.type == 'temp' || device.type == 'humi').map((sensor) => (
                 <Box key={sensor.name}>
                   <Box
                     sx={{
@@ -455,7 +476,7 @@ function Dashboard() {
                     <p style={{ marginTop: "4px" }}>{sensor.name}</p>
                   </Box>
                 </Box>
-              ))}
+              )) : <></>}
             </Item>
           </Grid>
         </Grid>
