@@ -34,43 +34,6 @@ const today = new Date().toLocaleDateString();
 var timewithsec = new Date().toLocaleTimeString();
 const time = timewithsec.substring(0, timewithsec.length - 6);
 let room = 0;
-const DATA = [
-  {
-    time: "00h00",
-    temperature: 21,
-    humidity: 64,
-  },
-  {
-    time: "01h00",
-    temperature: 23,
-    humidity: 61,
-  },
-  {
-    time: "02h00",
-    temperature: 24,
-    humidity: 65,
-  },
-  {
-    time: "03h00",
-    temperature: 20,
-    humidity: 67,
-  },
-  {
-    time: "04h00",
-    temperature: 24,
-    humidity: 70,
-  },
-  {
-    time: "05h00",
-    temperature: 25,
-    humidity: 64,
-  },
-  {
-    time: "06h00",
-    temperature: 26,
-    humidity: 72,
-  },
-];
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -228,13 +191,73 @@ function Dashboard() {
     setHumi(record.message);
   }
 
+  const [device, setDevice] = useState(null);
+  const [nameDevice, setNameDevice] = useState(null);
+  const [record, setRecord] = useState([])
+  const [nameField, setNameField] = useState("");
+
+  const getData = (device) => {
+    if (theRoom == null || device == null) setRecord([]);
+    getSensorRecords(device);
+  }
+
+  function getDataInDay(record) {
+    let fullday = record.time.split(',')[0];
+    fullday = fullday.split("/");
+    let day = fullday[0], month = fullday[1], year = fullday[2];
+    const d = new Date();
+    if (day == d.getDate() && month == d.getMonth() + 1 && year == d.getFullYear()) return true;
+    return false;
+  }
+
+  function parseTime(record) {
+    let fulltime = record.time.split(',')[1].substring(1);
+    let a = fulltime.split(' ');
+    let time = a[0], isAM = a[1] == 'am' ? true : false;
+    time = time.split(":");
+    let hour = time[0], minute = time[1], second = time[2];
+    if (isAM) {
+      record.time = hour + ":" + + minute + ":" + record;
+    }
+    else {
+      if (parseInt(hour) == 12) {
+        record.time = hour + ":" + minute + ":" + second;
+      }
+      else {
+        record.time = (parseInt(hour) + 12) + ":" + minute + ":" + second;
+      }
+    }
+  }
+ 
+  async function getSensorRecords(device) {
+    let url = 'http://localhost:5000/api/data?room=' + theRoom + '&device=' + device;
+    console.log(url);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      const message = `An error occured: ${response.statusText}`;
+      window.alert(message);
+      return;
+    }
+
+    const record = await response.json();
+    console.log(record);
+    record.filter(getDataInDay);
+    record.map(parseTime);
+    setRecord(record.reverse());
+  }
+
   return (
     <>
       <Breadcrumbs aria-label="breadcrumb" style={{ margin: MARGIN_LEFT }}>
         <Link underline="hover" color="inherit" href="/">
           Dashboard
         </Link>
-        {/* <Typography color="text.primary">{ROOM}</Typography> */}
         <Autocomplete
           disablePortal
           id="listrooms"
@@ -257,8 +280,44 @@ function Dashboard() {
           <Grid item xs={8}>
             <Item sx={{ minHeight: "350px" }}>
               <Box sx={{ position: "relative" }}>
-                <p>Biểu đồ dữ liệu</p>
-                <h5>{theRoom == null ? theRoom : listRooms[theRoom].name}</h5>
+                <Box sx={{display: 'flex'}}>
+                  <Box>
+                    <p>Biểu đồ dữ liệu</p>
+                    <h5>{theRoom == null ? theRoom : listRooms[theRoom].name}</h5>
+                  </Box>
+                  {theRoom != null ? 
+                  <>
+                    {(listRooms[theRoom].devices).filter(device => device.type == 'temp').length > 0 ? 
+                    <Button 
+                      variant="contained" 
+                      sx={{marginLeft: 3, height: '50%'}}
+                      onClick={() => {
+                        const tempSensor = listRooms[theRoom].devices.filter(device => device.type == 'temp')[0];
+                        setDevice(listRooms[theRoom].devices.indexOf(tempSensor))
+                        getData(listRooms[theRoom].devices.indexOf(tempSensor))
+                        setNameField("Nhiệt độ");
+                      }}
+                    >
+                      Nhiệt độ
+                    </Button>
+                    : <></> }
+                    {(listRooms[theRoom].devices).filter(device => device.type == 'humi').length > 0 ?
+                    <Button 
+                      variant="contained" 
+                      sx={{marginLeft: 3, height: '50%'}}
+                      onClick={() => {
+                        const tempSensor = listRooms[theRoom].devices.filter(device => device.type == 'humi')[0];
+                        setDevice(listRooms[theRoom].devices.indexOf(tempSensor))
+                        getData(listRooms[theRoom].devices.indexOf(tempSensor))
+                        setNameField("Độ ẩm");
+                      }}
+                    >
+                      Độ ẩm
+                    </Button>
+                    : <></> }
+                  </>
+                  : <></> }
+                </Box>
                 <Link href="/history">
                   <Button
                     variant="outlined"
@@ -276,11 +335,12 @@ function Dashboard() {
                 }}
               >
                 <p>{today}</p>
+                {device != null ? 
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     width={500}
                     height={300}
-                    data={DATA}
+                    data={record}
                     margin={{
                       top: 5,
                       right: 30,
@@ -288,27 +348,19 @@ function Dashboard() {
                       bottom: 5,
                     }}
                   >
-                    <XAxis dataKey="time" />
+                    <XAxis dataKey="time"/>
                     <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
                     <Tooltip />
                     <Legend />
                     <Line
                       yAxisId="left"
                       type="monotone"
-                      dataKey="temperature"
+                      dataKey="message"
                       stroke="#8884d8"
-                      name="Nhiệt độ"
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="humidity"
-                      stroke="#82ca9d"
-                      name="Độ ẩm"
+                      name={nameField}
                     />
                   </LineChart>
-                </ResponsiveContainer>
+                </ResponsiveContainer> : <></> }
               </Box> : <></>}
             </Item>
           </Grid>
