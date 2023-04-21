@@ -216,7 +216,7 @@ function History() {
 
   function checkStartDate(data) {
     let fullday = data.time.split(',')[0].split('/');
-    let month = fullday[0], day = fullday[1], year = fullday[2];
+    let day = fullday[0], month = fullday[1], year = fullday[2];
     if (year < startDate.year()) return false;
     else if (year == startDate.year()) {
       if (month < startDate.month() + 1) return false;
@@ -231,7 +231,7 @@ function History() {
 
   function checkEndDate(data) {
     let fullday = data.time.split(',')[0].split('/');
-    let month = fullday[0], day = fullday[1], year = fullday[2];
+    let day = fullday[0], month = fullday[1], year = fullday[2];
     if (year > endDate.year()) return false;
     else if (year == endDate.year()) {
       if (month > endDate.month() + 1) return false;
