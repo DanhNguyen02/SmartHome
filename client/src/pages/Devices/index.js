@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from "@mui/material/styles";
 import {Grid,
         Box,
@@ -13,13 +13,26 @@ import {Grid,
         Select,
         Button,}
     from '@mui/material';
-
 import {CloseOutlined,}
     from "@material-ui/icons";
-
 import LightIcon from "../../assets/images/lightIcon.png";
 import FanIcon from "../../assets/images/fanIcon.png";
 import SensorIcon from "../../assets/images/sensorIcon.png";
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import axios from 'axios';
+
+const GetDevices = async () => {
+    const path = window.location.pathname;
+    const id = path.split('/')[2];
+    const response = await axios.get('http://localhost:5000/api/devices', {
+        params: {
+            room: id
+        }
+    });
+    
+    return response.data;
+}
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -27,57 +40,6 @@ const Item = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(1),
     color: theme.palette.text.secondary,
 }));
-
-const Data = [
-    {
-        'id': '1',
-        'type': 'light',
-        'name': 'Đèn trần 1',
-        'room': 'Phòng khách'
-    },
-    {
-        'id': '2',
-        'type': 'light',
-        'name': 'Đèn trần 2',
-        'room': 'Phòng khách'
-    },
-    {
-        'id': '3',
-        'type': 'light',
-        'name': 'Đèn toilet',
-        'room': 'Phòng vệ sinh'
-    },
-    {
-        'id': '4',
-        'type': 'light',
-        'name': 'Đèn ngủ',
-        'room': 'Phòng ngủ'
-    },
-    {
-        'id': '5',
-        'type': 'fan',
-        'name': 'Quạt 1',
-        'room': 'Phòng khách'
-    },
-    {
-        'id': '6',
-        'type': 'fan',
-        'name': 'Quạt 2',
-        'room': 'Phòng ngủ'
-    },
-    {
-        'id': '7',
-        'type': 'temp',
-        'name': 'Nhiệt độ',
-        'room': 'Phòng khách'
-    },
-    {
-        'id': '8',
-        'type': 'humid',
-        'name': 'Độ ẩm',
-        'room': 'Phòng khách'
-    },
-]
 
 const RangeField = ({ type, device={} }) => {
     return (
@@ -90,11 +52,11 @@ const RangeField = ({ type, device={} }) => {
             <TextField
                 required
                 fullWidth
-                id={`${type}-${device.id}`}
-                name={`${type}-${device.id}`}
+                id={type}
+                name={type}
                 defaultValue={ type === 'min' ? device.min : device.max }
                 type='number'
-                autoComplete={`${type}-${device.id}`}
+                autoComplete={type}
                 sx={{
                     '& .MuiInputLabel-root.Mui-focused': {
                         color: '#6C63FF',
@@ -125,7 +87,7 @@ const ShowRange = ({ isAdd, sensor, device={} }) => {
             )
         } else return null;
     } else if (device.type) {
-        if (sensor === 'temp' || sensor === 'humid') {
+        if (sensor === 'temp' || sensor === 'humi') {
             return (
                 <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
                     <RangeField type='min' device={{ type: sensor }}/>
@@ -133,11 +95,11 @@ const ShowRange = ({ isAdd, sensor, device={} }) => {
                 </Box>
             )
         } else if (sensor === 'other') return null;
-        else if (sensor === 'none' && (device.type === 'temp' || device.type === 'humid')) {
+        else if (sensor === 'none' && (device.type === 'temp' || device.type === 'humi')) {
             return (
                 <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
-                    <RangeField type='min' device={{type: device.type}}/>
-                    <RangeField type='max' device={{type: device.type}}/>
+                    <RangeField type='min' device={device}/>
+                    <RangeField type='max' device={device}/>
                 </Box>
             )
         }
@@ -148,7 +110,7 @@ const ModalButton = (props) => {
     const bgcolor = props.type === 'update' || props.type === 'add' ? '#6C63FF' : 'Red'
     return (
         <Button
-            type="button"                   
+            type="submit"                   
             variant="contained"
             sx = {{
                 mt: 3,
@@ -182,11 +144,46 @@ const ModalButton = (props) => {
 }
 
 const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
+    const formik = useFormik({
+        initialValues: {
+            name: '',
+            feed: '',
+            type: '',
+            min: '',
+            max: ''
+        },
+        validationSchema: Yup.object({
+            name: Yup
+                .string()
+                .required('Tên không được để trống'),
+            feed: Yup
+                .string()
+                .required('Feed key không được để trống'),
+            type: Yup
+                .string()
+                .required('Loại thiết bị không được để trống'),
+        }),
+        onSubmit: async (values) => {
+            try {
+                const path = window.location.pathname;
+                const id = path.split('/')[2];
+                // await axios.post('http://localhost:5000/api/devices', {
+                //     room: id,
+                //     name: values.name,
+                //     feed: values.feed,
+                //     type: values.type,
+                // });
+                console.log(values)
+            } catch (error) {
+                console.error(error);
+            }
+        },
+    });
     const [sensor, setSensor] = useState('none'); 
     return (
         <Modal 
             open={isModalOpen}
-            onClose={() => {setModalOpen(false); setSensor('none');}}
+            onClose={() => {setModalOpen(false); setSensor('none'); formik.setTouched({});}}
             sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -196,7 +193,7 @@ const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
                 sx={{width: '400px',
                     maxWidth: '80vw',
                     position: 'fixed',
-                    top: '2%',
+                    top: '10%',
                     bgcolor: 'background.paper',
                     p: 2,
                     borderRadius: '20px',
@@ -213,38 +210,42 @@ const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
                                     <p style={{ margin: "0", color: 'black', fontSize: 16 }}>{device.name}&nbsp;&nbsp;&nbsp;&nbsp;</p>
                                     <p style={{ margin: '0', color: 'gray', fontSize: 16 }}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device.room}</p>
                                 </>
-
                         }
                     </Typography>
-                    <IconButton onClick={() => {setModalOpen(false); setSensor('none');}}>
+                    <IconButton onClick={() => {setModalOpen(false); setSensor('none'); formik.setTouched({});}}>
                         <CloseOutlined />
                     </IconButton>
                 </Box>
 
-                <Box sx={{m: 3}}>
-                    <FormControl fullWidth>
-
+                <Box sx={{m: 3}} >
+                    <FormControl fullWidth noValidate onSubmit={formik.handleSubmit}>
                         {/* Nhập tên thiết bị */}
                         <Box sx={{mb: 1}}>
                             <Typography variant="subtitle1">
                                 <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Tên thiết bị</p>
                             </Typography>
                             <TextField
-                                required
-                                fullWidth
-                                id={'name-' + device.id}
-                                name={'name-' + device.id}
-                                defaultValue={device.name}
-                                autoComplete={'name-' + device.id}
-                                sx={{
-                                    '& .MuiInputLabel-root.Mui-focused': {
-                                        color: '#6C63FF',
-                                    },
-                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#6C63FF',
-                                    },
-                                    
-                                }}/>
+                            required
+                            fullWidth
+                            id='name'
+                            name='name'
+                            autoComplete={'name'}
+                            error={formik.touched['name'] && Boolean(formik.errors['name'])}
+                            helperText={formik.touched['name'] && formik.errors['name']}
+                            onBlur={formik.handleBlur}
+                            onChange={formik.handleChange}
+                            value={device.name || formik.values['name']}
+                            sx={{
+                                '& .MuiInputLabel-root.Mui-focused': {
+                                    color: '#6C63FF',
+                                },
+                                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#6C63FF',
+                                },
+                                "input::-ms-reveal, input::-ms-clear": {
+                                    display: "none",
+                                }
+                            }}/>
                         </Box>
 
                         {/* Nhập feed key cho thiết bị */}
@@ -255,10 +256,14 @@ const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
                             <TextField
                                 required
                                 fullWidth
-                                id={'feed-' + device.id}
-                                name={'feed-' + device.id}
+                                id='feed'
+                                name='feed'
                                 defaultValue={device.feed}
-                                autoComplete={'feed-' + device.id}
+                                error={formik.touched['feed'] && Boolean(formik.errors['feed'])}
+                                helperText={formik.touched['feed'] && formik?.errors['feed']}
+                                onBlur={formik.handleBlur}
+                                onChange={formik.handleChange}
+                                autoComplete='feed'
                                 sx={{
                                     '& .MuiInputLabel-root.Mui-focused': {
                                         color: '#6C63FF',
@@ -287,44 +292,26 @@ const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
                                     <Select
                                         labelId="type-select-label"
                                         label="Loại thiết bị"
-                                        id={'type-' + device.id}
+                                        id='type'
+                                        name='type'
+                                        required
                                         defaultValue={device.type}
+                                        error={formik.touched['type'] && Boolean(formik.errors['type'])}
+                                        helperText={formik.touched['type'] && formik?.errors['type']}
+                                        onBlur={formik.handleBlur}
                                         onChange={(event) => {
                                             const selectedValue = event.target.value;
                                             if (selectedValue === 'temp') setSensor('temp');
-                                            else if (selectedValue === 'humid') setSensor('humid');
+                                            else if (selectedValue === 'humi') setSensor('humi');
                                             else setSensor('other');
                                         }}>
                                         <MenuItem value="light">Đèn</MenuItem>
                                         <MenuItem value="fan">Quạt</MenuItem>
                                         <MenuItem value="temp">Cảm biến nhiệt độ</MenuItem>
-                                        <MenuItem value="humid">Cảm biến độ ẩm</MenuItem>
+                                        <MenuItem value="humi">Cảm biến độ ẩm</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
-                        </Box>
-
-                        {/* Nhập mô tả */}
-                        <Box sx={{my: 1}}>
-                            <Typography variant="subtitle1">
-                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Mô tả</p>
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={3}
-                                id={'description-' + device.id}
-                                name={'description-' + device.id}
-                                autoComplete={'description-' + device.id}
-                                value={device.description}
-                                sx={{
-                                    '& .MuiInputLabel-root.Mui-focused': {
-                                        color: '#6C63FF',
-                                    },
-                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#6C63FF',
-                                    },
-                                }}/>
                         </Box>
 
                         {/* Nhập ngưỡng giới hạn cho thiết bị */}
@@ -377,22 +364,13 @@ const AddDevice = () => {
 
 const SwitchItem = (props) => {
     const [isModalOpen, setModalOpen] = useState(false);
-
+    const device = props.device;
     const IconMapping = {
         'light': LightIcon,
         'fan': FanIcon,
         'temp': SensorIcon,
-        'humid': SensorIcon,
+        'humi': SensorIcon,
     }
-
-    let device = () => {
-        for (let i in Data) {
-            if (Data[i]['id'] === props.id) {
-                return Data[i];
-            }
-        }
-    }
-
     return (
         <>
             <Box 
@@ -410,7 +388,7 @@ const SwitchItem = (props) => {
                     },
                 }}>
                 <img
-                    src={IconMapping[device()['type']]}
+                    src={IconMapping[device['type']]}
                     alt="icon"
                     style={{
                         width: "28px",
@@ -419,19 +397,44 @@ const SwitchItem = (props) => {
                         marginRight: "10px",
                         boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
                     }}/>
-                <p style={{marginBottom: '0', color: 'black'}}>{device()['name']}&nbsp;&nbsp;&nbsp;&nbsp;</p>
-                <p style={{marginBottom: '0',}}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device()['room']}</p>
+                <p style={{marginBottom: '0', color: 'black'}}>{device['name']}&nbsp;&nbsp;&nbsp;&nbsp;</p>
             </Box>
-            <DeviceModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} device={{ type: device()['type'] }}/>
+            <DeviceModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} device={device}/>
         </>
     )
 }
 
 export default function Page () {
+    const [roomName, setRoomName] = useState(undefined);
+    const [listDevices, setListDevices] = useState(null);
+    useEffect(() => {
+        async function fetchDevices() {
+            const response = await GetDevices();
+            setListDevices(response);
+        }
+        fetchDevices();
+    }, []);
+    useEffect(() => {
+        async function fetchRoom() {
+            const path = window.location.pathname;
+            const id = path.split('/')[2];
+            const response = await axios.get('http://localhost:5000/api/rooms');
+            const room = await response.data;
+            setRoomName(room[id]['name']);
+        };
+        fetchRoom();
+     }
+    , []);
+    const lights = listDevices?.filter(device => device.type === 'light');
+    const fans = listDevices?.filter(device => device.type === 'fan');
+    const sensors = listDevices?.filter(device => device.type === 'temp' || device.type === 'humi');
     return (
         <Grid spacing={2} sx={{m: 4}}>
             <Grid xs={12} sx={{p: 1, display: 'flex', alignItems: 'center'}}>
-                <Typography color='primary' sx={{mr: 2, fontWeight: 'bold', fontSize: '1.25rem', color: 'secondary'}}>
+                <Typography color='primary' sx={{ display: 'flex', mr: 2, fontWeight: 'bold', fontSize: '1.25rem', color: 'secondary'}}>
+                    <p style={{ color: 'grey', fontWeight: 'bold', marginBottom: '0'}}>
+                        {roomName}&nbsp;&nbsp;&nbsp;&nbsp;&gt;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </p>
                     Thiết bị và Cảm biến
                 </Typography>
                 <AddDevice/>
@@ -440,24 +443,25 @@ export default function Page () {
                 <Grid xs={4} sx={{p: 1}}>
                     <Item>
                         <Typography sx={{mb: 3}}>Đèn</Typography>
-                        <SwitchItem id='1'/>
-                        <SwitchItem id='2'/>
-                        <SwitchItem id='3'/>
-                        <SwitchItem id='4'/>
+                        {lights?.length ? lights.map((device, id) => (
+                            <SwitchItem id={id} device={device} />
+                        )) : <Typography sx={{color: 'black', textAlign: 'center'}}> Không có thiết bị </Typography>}
                     </Item>                     
                 </Grid>
                 <Grid xs={4} sx={{p: 1}}>
                     <Item>
-                        <Typography sx={{mb: 3}}>Thiết bị</Typography>
-                        <SwitchItem id='5'/>
-                        <SwitchItem id='6'/>
+                        <Typography sx={{mb: 3}}>Đèn</Typography>
+                        {fans?.length ? fans.map((device, id) => (
+                            <SwitchItem id={id} device={device} />
+                        )) : <Typography sx={{color: 'black', textAlign: 'center'}}> Không có thiết bị </Typography>}
                     </Item> 
                 </Grid>
                 <Grid xs={4} sx={{p: 1}}>
                     <Item>
                         <Typography sx={{mb: 3}}>Cảm biến</Typography>
-                        <SwitchItem id='7'/>
-                        <SwitchItem id='8'/>
+                        {sensors?.length ? sensors.map((device, id) => (
+                            <SwitchItem id={id} device={device} />
+                        )) : <Typography sx={{color: 'black', textAlign: 'center'}}> Không có thiết bị </Typography>}
                     </Item> 
                 </Grid>
             </Grid>

@@ -57,10 +57,11 @@ export default function Page() {
         onSubmit: async (values) => {
             try {
                 const response = await axios.post('http://localhost:5000/auth/login', {
-                                    email: values.email,
-                                    password: values.password,
-                                });
+                    email: values.email,
+                    password: values.password,
+                });
                 localStorage.setItem('accessToken', response.data.accessToken);
+                navigate('/dashboard');
             } catch (error) {
                 console.error(error);
                 error.response.data.message === 'Account is not exist' ?
