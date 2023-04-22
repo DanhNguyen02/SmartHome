@@ -563,6 +563,7 @@ recordRoutes.route("/devices").get(function (req, res) {
  */
 
 recordRoutes.route("/device").post(function (req, res) {
+  const io = req.io;
   let db_connect = dbo.getDb();
   let device = {
     name: req.body.name,
