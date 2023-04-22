@@ -3,8 +3,6 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const app = express();
 const cors = require('cors');
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
 
 require('dotenv').config({ path: './config.env' });
 const port = process.env.PORT || 5000;
@@ -19,12 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use("/api", require("./routes/record"));
 app.use("/auth", require("./routes/authRoutes"));
-app.use("/api", require("./routes/profile"));
-app.use("/api", require("./routes/device"));
 
-// get driver connection
-const dbo = require("./db/conn");
-const mqtt = require("./mqtt/conn");
 
 // Swagger definition
 const swaggerDefinition = {
