@@ -12,7 +12,7 @@ import {
   Switch,
   Slider,
   Autocomplete,
-  TextField
+  TextField,
 } from "@mui/material";
 import {
   LineChart,
@@ -33,7 +33,7 @@ const MARGIN_LEFT = "20px";
 const today = new Date().toLocaleDateString();
 var timewithsec = new Date().toLocaleTimeString();
 const time = timewithsec.substring(0, timewithsec.length - 6);
-let room = 0;
+let room = 1;
 const DATA = [
   {
     time: "00h00",
@@ -85,7 +85,7 @@ function Dashboard() {
   const [TEMP, setTemp] = useState([]);
   const [HUMI, setHumi] = useState([]);
   const [theRoom, setRoom] = useState(null);
-  const [nameRoom, setNameRoom] = useState(null)
+  const [nameRoom, setNameRoom] = useState(null);
   useEffect(function effectFunction() {
     fetch(`http://localhost:5000/api/light/` + "?room=" + room)
       .then((response) => response.json())
@@ -117,10 +117,10 @@ function Dashboard() {
   }, []);
 
   async function fetchListRooms() {
-    const response = await fetch('http://localhost:5000/api/rooms', {
-      method: 'GET',
+    const response = await fetch("http://localhost:5000/api/rooms", {
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
     });
 
@@ -268,48 +268,51 @@ function Dashboard() {
                   </Button>
                 </Link>
               </Box>
-              {theRoom != null ? 
-              <Box
-                sx={{
-                  width: "100%",
-                  height: "200px",
-                }}
-              >
-                <p>{today}</p>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    width={500}
-                    height={300}
-                    data={DATA}
-                    margin={{
-                      top: 5,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
-                    <XAxis dataKey="time" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="temperature"
-                      stroke="#8884d8"
-                      name="Nhiệt độ"
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="humidity"
-                      stroke="#82ca9d"
-                      name="Độ ẩm"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Box> : <></>}
+              {theRoom != null ? (
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "200px",
+                  }}
+                >
+                  <p>{today}</p>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      width={500}
+                      height={300}
+                      data={DATA}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <XAxis dataKey="time" />
+                      <YAxis yAxisId="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="temperature"
+                        stroke="#8884d8"
+                        name="Nhiệt độ"
+                      />
+                      <Line
+                        yAxisId="right"
+                        type="monotone"
+                        dataKey="humidity"
+                        stroke="#82ca9d"
+                        name="Độ ẩm"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              ) : (
+                <></>
+              )}
             </Item>
           </Grid>
           <Grid item xs={4}>
@@ -370,113 +373,134 @@ function Dashboard() {
           <Grid item xs={4}>
             <Item>
               <p>Đèn</p>
-              {theRoom != null ? listRooms[theRoom].devices.filter(
-                (device) => device.type == 'light').map((light) => (
-                <Box key={light.name}>
-                  <Box
-                    sx={{
-                      marginTop: "10px",
-                      display: "flex",
-                      position: "relative",
-                      borderBottom: "1px solid #DBE5EB",
-                    }}
-                  >
-                    <img
-                      src={LightIcon}
-                      alt=""
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "180%",
-                        marginRight: "10px",
-                        boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
-                      }}
-                    />
-                    <p style={{ marginTop: "4px" }}>{light.name}</p>
-                    <Switch
-                      checked={lightValue}
-                      sx={{ position: "absolute", right: "0" }}
-                      onChange={(e) => {
-                        onChangeLight(e);
-                      }}
-                    />
-                  </Box>
-                </Box>
-              )) : <></>}
+              {theRoom != null ? (
+                listRooms[theRoom].devices
+                  .filter((device) => device.type == "light")
+                  .map((light) => (
+                    <Box key={light.name}>
+                      <Box
+                        sx={{
+                          marginTop: "10px",
+                          display: "flex",
+                          position: "relative",
+                          borderBottom: "1px solid #DBE5EB",
+                        }}
+                      >
+                        <img
+                          src={LightIcon}
+                          alt=""
+                          style={{
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "180%",
+                            marginRight: "10px",
+                            boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
+                          }}
+                        />
+                        <p style={{ marginTop: "4px" }}>{light.name}</p>
+                        <Switch
+                          checked={lightValue}
+                          sx={{ position: "absolute", right: "0" }}
+                          onChange={(e) => {
+                            onChangeLight(e);
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  ))
+              ) : (
+                <></>
+              )}
             </Item>
           </Grid>
           <Grid item xs={4}>
             <Item>
               <p>Máy lạnh và quạt</p>
-              {theRoom != null ? listRooms[theRoom].devices.filter(
-                (device) => device.type == 'fan').map((fan) => (
-                <Box key={fan.name}>
-                  <Box
-                    sx={{
-                      marginTop: "10px",
-                      display: "flex",
-                      position: "relative",
-                      borderBottom: "1px solid #DBE5EB",
-                    }}
-                  >
-                    <img
-                      src={FanIcon}
-                      alt=""
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "180%",
-                        marginRight: "10px",
-                        boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
-                      }}
-                    />
-                    <p style={{ marginTop: "4px" }}>{fan.name}</p>
-                    {/* <Switch sx={{ position: "absolute", right: "0" }} /> */}
-                    <Slider
-                      aria-label="Temperature"
-                      value={fanVolume}
-                      valueLabelDisplay="auto"
-                      step={25}
-                      marks
-                      min={0}
-                      max={100}
-                      sx={{ position: "absolute", right: "0", width: "60%" }}
-                      onChange={handleFanChange}
-                    />
-                  </Box>
-                </Box>
-              )) : <></>}
+              {theRoom != null ? (
+                listRooms[theRoom].devices
+                  .filter((device) => device.type == "fan")
+                  .map((fan) => (
+                    <Box key={fan.name}>
+                      <Box
+                        sx={{
+                          marginTop: "10px",
+                          display: "flex",
+                          position: "relative",
+                          borderBottom: "1px solid #DBE5EB",
+                        }}
+                      >
+                        <img
+                          src={FanIcon}
+                          alt=""
+                          style={{
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "180%",
+                            marginRight: "10px",
+                            boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
+                          }}
+                        />
+                        <p style={{ marginTop: "4px" }}>{fan.name}</p>
+                        {/* <Switch sx={{ position: "absolute", right: "0" }} /> */}
+                        <Slider
+                          aria-label="Temperature"
+                          value={fanVolume}
+                          valueLabelDisplay="auto"
+                          step={25}
+                          marks
+                          min={0}
+                          max={100}
+                          sx={{
+                            position: "absolute",
+                            right: "0",
+                            width: "60%",
+                          }}
+                          onChange={handleFanChange}
+                        />
+                      </Box>
+                    </Box>
+                  ))
+              ) : (
+                <></>
+              )}
             </Item>
           </Grid>
           <Grid item xs={4}>
             <Item>
               <p>Cảm biến</p>
-              {theRoom != null ? listRooms[theRoom].devices.filter(
-                (device) => device.type == 'temp' || device.type == 'humi').map((sensor) => (
-                <Box key={sensor.name}>
-                  <Box
-                    sx={{
-                      marginTop: "10px",
-                      display: "flex",
-                      position: "relative",
-                      borderBottom: "1px solid #DBE5EB",
-                    }}
-                  >
-                    <img
-                      src={SensorIcon}
-                      alt=""
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "180%",
-                        marginRight: "10px",
-                        boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
-                      }}
-                    />
-                    <p style={{ marginTop: "4px" }}>{sensor.name}</p>
-                  </Box>
-                </Box>
-              )) : <></>}
+              {theRoom != null ? (
+                listRooms[theRoom].devices
+                  .filter(
+                    (device) => device.type == "temp" || device.type == "humi"
+                  )
+                  .map((sensor) => (
+                    <Box key={sensor.name}>
+                      <Box
+                        sx={{
+                          marginTop: "10px",
+                          display: "flex",
+                          position: "relative",
+                          borderBottom: "1px solid #DBE5EB",
+                        }}
+                      >
+                        <img
+                          src={SensorIcon}
+                          alt=""
+                          style={{
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "180%",
+                            marginRight: "10px",
+                            boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
+                          }}
+                        />
+                        <p style={{ marginTop: "4px" }}>{sensor.name}</p>
+                      </Box>
+                    </Box>
+                  ))
+              ) : (
+                <></>
+              )}
             </Item>
           </Grid>
         </Grid>

@@ -1,4 +1,6 @@
 const express = require("express");
+const swaggerJSDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config({ path: "./config.env" });
@@ -13,9 +15,37 @@ app.use("/api", require("./routes/record"));
 app.use("/auth", require("./routes/authRoutes"));
 app.use("/api", require("./routes/profile"));
 app.use("/api", require("./routes/device"));
+
 // get driver connection
 const dbo = require("./db/conn");
 const mqtt = require("./mqtt/conn");
+
+// Swagger definition
+const swaggerDefinition = {
+  openapi: "3.0.0",
+  info: {
+    title: "Smart home API",
+    version: "1.0.0",
+    description: "An example API for demonstration purposes",
+  },
+  servers: [
+    {
+      url: "http://localhost:5000",
+      description: "Smart home server",
+    },
+  ],
+};
+
+// Options for the Swagger docs
+const options = {
+  swaggerDefinition,
+  apis: ["./routes/*.js"], // Path to the API docs
+};
+
+// Initialize Swagger-jsdoc
+const swaggerSpec = swaggerJSDoc(options);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(port, () => {
   // perform a database connection when server starts
