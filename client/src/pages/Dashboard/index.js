@@ -33,7 +33,6 @@ const MARGIN_LEFT = "20px";
 const today = new Date().toLocaleDateString();
 var timewithsec = new Date().toLocaleTimeString();
 const time = timewithsec.substring(0, timewithsec.length - 6);
-let room = 0;
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -47,30 +46,50 @@ function Dashboard() {
   const [fanVolume, setFanVolume] = useState([]);
   const [TEMP, setTemp] = useState([]);
   const [HUMI, setHumi] = useState([]);
-  const [theRoom, setRoom] = useState(null);
   const [nameRoom, setNameRoom] = useState(null);
+  const room = useRef(null);
   useEffect(function effectFunction() {
-    fetch(`http://localhost:5000/api/light/` + "?room=" + room)
-      .then((response) => response.json())
+    fetch(`http://localhost:5000/api/light/` + "?room=" + room.current)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('404 not found');
+        }
+        return response.json()
+      })
       .then(({ message: light }) => {
         setLightValue(light == 1 ? true : false);
       });
-    fetch(`http://localhost:5000/api/fan/` + "?room=" + room)
-      .then((response) => response.json())
+    fetch(`http://localhost:5000/api/fan/` + "?room=" + room.current)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('404 not found');
+        }
+        return response.json()
+      })
       .then(({ message: fan }) => {
         setFanVolume(parseInt(fan));
       });
-    fetch(`http://localhost:5000/api/temp/` + "?room=" + room)
-      .then((response) => response.json())
+    fetch(`http://localhost:5000/api/temp/` + "?room=" + room.current)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('404 not found');
+        }
+        return response.json()
+      })
       .then(({ message: temp }) => {
         setTemp(temp);
       });
-    fetch(`http://localhost:5000/api/humi/` + "?room=" + room)
-      .then((response) => response.json())
+    fetch(`http://localhost:5000/api/humi/` + "?room=" + room.current)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('404 not found');
+        }
+        return response.json()
+      })
       .then(({ message: humi }) => {
         setHumi(humi);
       });
-  }, []);
+  }, [room.current]);
 
   const [listRooms, setListRooms] = useState([]);
 
@@ -153,8 +172,10 @@ function Dashboard() {
     timer = setInterval(() => {
       const sec = new Date().getSeconds();
       if (sec % 6) return;
-      fetchTemp();
-      fetchHumi();
+      if (room.current != null) {
+        fetchTemp();
+        fetchHumi();
+      }
     }, 1000);
     return () => {
       clearInterval(timer);
@@ -163,13 +184,11 @@ function Dashboard() {
 
   async function fetchTemp() {
     const response = await fetch(
-      `http://localhost:5000/api/temp/` + "?room=" + room
+      `http://localhost:5000/api/temp/` + "?room=" + room.current
     );
 
     if (!response.ok) {
-      const message = `An error occured: ${response.statusText}`;
-      window.alert(message);
-      return;
+      throw new Error('404 not found');
     }
 
     const record = await response.json();
@@ -178,13 +197,11 @@ function Dashboard() {
 
   async function fetchHumi() {
     const response = await fetch(
-      `http://localhost:5000/api/humi/` + "?room=" + room
+      `http://localhost:5000/api/humi/` + "?room=" + room.current
     );
 
     if (!response.ok) {
-      const message = `An error occured: ${response.statusText}`;
-      window.alert(message);
-      return;
+      throw new Error('404 not found');
     }
 
     const record = await response.json();
@@ -192,19 +209,18 @@ function Dashboard() {
   }
 
   const [device, setDevice] = useState(null);
-  const [nameDevice, setNameDevice] = useState(null);
   const [record, setRecord] = useState([])
   const [nameField, setNameField] = useState("");
 
   const getData = (device) => {
-    if (theRoom == null || device == null) setRecord([]);
+    if (room.current == null || device == null) setRecord([]);
     getSensorRecords(device);
   }
 
   function getDataInDay(record) {
     let fullday = record.time.split(',')[0];
     fullday = fullday.split("/");
-    let day = fullday[0], month = fullday[1], year = fullday[2];
+    let month = fullday[0], day = fullday[1], year = fullday[2];
     const d = new Date();
     if (day == d.getDate() && month == d.getMonth() + 1 && year == d.getFullYear()) return true;
     return false;
@@ -213,7 +229,7 @@ function Dashboard() {
   function parseTime(record) {
     let fulltime = record.time.split(',')[1].substring(1);
     let a = fulltime.split(' ');
-    let time = a[0], isAM = a[1] == 'am' ? true : false;
+    let time = a[0], isAM = (a[1] == 'am' || a[1] == 'AM') ? true : false;
     time = time.split(":");
     let hour = time[0], minute = time[1], second = time[2];
     if (isAM) {
@@ -230,7 +246,7 @@ function Dashboard() {
   }
  
   async function getSensorRecords(device) {
-    let url = 'http://localhost:5000/api/data?room=' + theRoom + '&device=' + device;
+    let url = 'http://localhost:5000/api/data?room=' + room.current + '&device=' + device;
     console.log(url);
     const response = await fetch(url, {
       method: 'GET',
@@ -263,11 +279,12 @@ function Dashboard() {
           id="listrooms"
           value={nameRoom}
           onChange={(event, nameRoom) => {
-            for (let room of listRooms) {
-              if (room.name === nameRoom) {
-                setRoom(listRooms.indexOf(room));
+            for (let theRoom of listRooms) {
+              if (theRoom.name === nameRoom) {
+                room.current = listRooms.indexOf(theRoom);
               }
             }
+            if (nameRoom == null) room.current = null;
             setNameRoom(nameRoom);
           }}
           options={listRooms.map((room) => room.name)}
@@ -283,32 +300,32 @@ function Dashboard() {
                 <Box sx={{display: 'flex'}}>
                   <Box>
                     <p>Biểu đồ dữ liệu</p>
-                    <h5>{theRoom == null ? theRoom : listRooms[theRoom].name}</h5>
+                    <h5>{room.current == null ? room.current : listRooms[room.current].name}</h5>
                   </Box>
-                  {theRoom != null ? 
+                  {room.current != null ? 
                   <>
-                    {(listRooms[theRoom].devices).filter(device => device.type == 'temp').length > 0 ? 
+                    {(listRooms[room.current].devices).filter(device => device.type == 'temp').length > 0 ? 
                     <Button 
                       variant="contained" 
                       sx={{marginLeft: 3, height: '50%'}}
                       onClick={() => {
-                        const tempSensor = listRooms[theRoom].devices.filter(device => device.type == 'temp')[0];
-                        setDevice(listRooms[theRoom].devices.indexOf(tempSensor))
-                        getData(listRooms[theRoom].devices.indexOf(tempSensor))
+                        const tempSensor = listRooms[room.current].devices.filter(device => device.type == 'temp')[0];
+                        setDevice(listRooms[room.current].devices.indexOf(tempSensor))
+                        getData(listRooms[room.current].devices.indexOf(tempSensor))
                         setNameField("Nhiệt độ");
                       }}
                     >
                       Nhiệt độ
                     </Button>
                     : <></> }
-                    {(listRooms[theRoom].devices).filter(device => device.type == 'humi').length > 0 ?
+                    {(listRooms[room.current].devices).filter(device => device.type == 'humi').length > 0 ?
                     <Button 
                       variant="contained" 
                       sx={{marginLeft: 3, height: '50%'}}
                       onClick={() => {
-                        const tempSensor = listRooms[theRoom].devices.filter(device => device.type == 'humi')[0];
-                        setDevice(listRooms[theRoom].devices.indexOf(tempSensor))
-                        getData(listRooms[theRoom].devices.indexOf(tempSensor))
+                        const tempSensor = listRooms[room.current].devices.filter(device => device.type == 'humi')[0];
+                        setDevice(listRooms[room.current].devices.indexOf(tempSensor))
+                        getData(listRooms[room.current].devices.indexOf(tempSensor))
                         setNameField("Độ ẩm");
                       }}
                     >
@@ -327,7 +344,7 @@ function Dashboard() {
                   </Button>
                 </Link>
               </Box>
-              {theRoom != null ? 
+              {room.current != null ? 
               <Box
                 sx={{
                   width: "100%",
@@ -422,8 +439,8 @@ function Dashboard() {
           <Grid item xs={4}>
             <Item>
               <p>Đèn</p>
-              {theRoom != null ? (
-                listRooms[theRoom].devices
+              {room.current != null ? (
+                listRooms[room.current].devices
                   .filter((device) => device.type == "light")
                   .map((light) => (
                     <Box key={light.name}>
@@ -465,8 +482,8 @@ function Dashboard() {
           <Grid item xs={4}>
             <Item>
               <p>Máy lạnh và quạt</p>
-              {theRoom != null ? (
-                listRooms[theRoom].devices
+              {room.current != null ? (
+                listRooms[room.current].devices
                   .filter((device) => device.type == "fan")
                   .map((fan) => (
                     <Box key={fan.name}>
@@ -517,8 +534,8 @@ function Dashboard() {
           <Grid item xs={4}>
             <Item>
               <p>Cảm biến</p>
-              {theRoom != null ? (
-                listRooms[theRoom].devices
+              {room.current != null ? (
+                listRooms[room.current].devices
                   .filter(
                     (device) => device.type == "temp" || device.type == "humi"
                   )
