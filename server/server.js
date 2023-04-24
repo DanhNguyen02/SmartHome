@@ -36,19 +36,12 @@ socketIo.on("connection", (socket) => {
   });
 });
 
-app.use((req, res, next) => {
-  req.io = socketIo;
-  next();
-});
-
-
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use("/api", require("./routes/record"));
 app.use("/auth", require("./routes/authRoutes"));
-
 
 // Swagger definition
 const swaggerDefinition = {
@@ -87,5 +80,5 @@ server.listen(port, () => {
 
   mqtt.subcribe((err) => {
     if (err) console.error(err);
-  });
+  }, socketIo);
 });

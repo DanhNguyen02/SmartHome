@@ -13,7 +13,8 @@ const client = mqtt.connect(connectUrl, {
 });
 
 module.exports = {
-  subcribe: function (callback) {
+  subcribe: function (callback, socketIo) {
+    this.socketIo = socketIo;
     const topics = [
       "haiche198/feeds/yolo-led",
       "haiche198/feeds/yolo-fan",
@@ -62,6 +63,7 @@ module.exports = {
                         { $set: { noti: noti } }
                       );
                   });
+                this.socketIo.emit('newNoti', 'Received notification');
               }
             }
           }

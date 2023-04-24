@@ -13,8 +13,6 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { Link } from "react-router-dom";
-import { Button } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
 import { Divider } from '@material-ui/core';
 import SensorIcon from "../../../../assets/images/sensorIcon.png";
 import axios from 'axios';
@@ -90,9 +88,7 @@ export default function PrimarySearchAppBar() {
   });
 
     // Cleanup function to remove Socket.io listener
-    return () => {
-      socket.off('newNoti');
-    };
+    return () => socket.off('newNoti');
   }, []);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -257,7 +253,7 @@ export default function PrimarySearchAppBar() {
                       {index !== 0 && <Divider/>}
                       <MenuItem sx={{
                         fontSize: 14,
-                        maxWidth: '400px',
+                        maxWidth: '370px',
                         whiteSpace: 'normal',
                         wordBreak: 'break-word',
                       }}>
@@ -283,7 +279,7 @@ export default function PrimarySearchAppBar() {
                         <span>
                           Cảm biến&nbsp;
                           <span style={{fontWeight: 'bold'}}>{notification.device}</span>
-                          &nbsp;tại phòng&nbsp;
+                          &nbsp;tại&nbsp;
                           <span style={{fontWeight: 'bold'}}>{notification.room}</span>
                           &nbsp;vượt ngưỡng cho phép
                         </span>
@@ -295,7 +291,7 @@ export default function PrimarySearchAppBar() {
                     </>
                   )) : <MenuItem sx={{
                     fontSize: 14,
-                    width: '400px',
+                    width: '370px',
                     whiteSpace: 'normal',
                     wordBreak: 'break-word',
                   }}></MenuItem>}
