@@ -1,10 +1,6 @@
 const express = require("express");
 
 const recordRoutes = express.Router();
-
-const dbo = require("../db/conn");
-const mqtt = require("../mqtt/conn");
-
 const ObjectId = require("mongodb").ObjectId;
 const recordControllers = require("../controllers/recordControllers");
 
@@ -504,6 +500,5 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *       500:
  *         description: Internal server error
  */
-
 
 module.exports = recordRoutes;
