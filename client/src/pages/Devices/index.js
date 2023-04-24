@@ -25,6 +25,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import { Field } from '../User/components';
 
+
 const GetDevices = async () => {
     const path = window.location.pathname;
     const roomId = path.split('/')[2];
@@ -187,10 +188,7 @@ const AlertModal = ({ showModal, setShowModal, infoModal }) => {
                             aria-label="close"
                             color="inherit"
                             size="small"
-                            onClick={() => {
-                                setShowModal(false);
-                                window.location.reload();
-                            }}>
+                            onClick={() => {setShowModal(false); window.location.reload();}}>
                             <CloseIcon fontSize="inherit" />
                         </IconButton>
                     }
