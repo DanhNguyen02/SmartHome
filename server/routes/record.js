@@ -505,4 +505,5 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  */
 
+
 module.exports = recordRoutes;
