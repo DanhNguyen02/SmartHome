@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from "@mui/material/styles";
 import {Grid,
         Box,
@@ -11,15 +11,42 @@ import {Grid,
         FormControl,
         InputLabel,
         Select,
-        Button,}
+        Button,
+        Alert,}
     from '@mui/material';
-
+import CloseIcon from '@mui/icons-material/Close';
 import {CloseOutlined,}
     from "@material-ui/icons";
-
 import LightIcon from "../../assets/images/lightIcon.png";
 import FanIcon from "../../assets/images/fanIcon.png";
 import SensorIcon from "../../assets/images/sensorIcon.png";
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import axios from 'axios';
+import { Field } from '../User/components';
+
+const GetDevices = async () => {
+    const path = window.location.pathname;
+    const roomId = path.split('/')[2];
+    const response = await axios.get('http://localhost:5000/api/devices', {
+        params: {
+            room: roomId
+        }
+    });
+    return response.data;
+}
+
+const DeleteDevice = async (device, setShowModal, setModalOpen, setInfoModal) => {
+    const path = window.location.pathname;
+    const roomId = path.split('/')[2];
+    setInfoModal({'type': 'delete', 'name': device.name})
+    await axios.delete('http://localhost:5000/api/device', {
+        room: roomId,
+        device: device.index
+    });
+    setModalOpen(false);
+    setShowModal(true);
+}
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -28,58 +55,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-const Data = [
-    {
-        'id': '1',
-        'type': 'light',
-        'name': 'Đèn trần 1',
-        'room': 'Phòng khách'
-    },
-    {
-        'id': '2',
-        'type': 'light',
-        'name': 'Đèn trần 2',
-        'room': 'Phòng khách'
-    },
-    {
-        'id': '3',
-        'type': 'light',
-        'name': 'Đèn toilet',
-        'room': 'Phòng vệ sinh'
-    },
-    {
-        'id': '4',
-        'type': 'light',
-        'name': 'Đèn ngủ',
-        'room': 'Phòng ngủ'
-    },
-    {
-        'id': '5',
-        'type': 'fan',
-        'name': 'Quạt 1',
-        'room': 'Phòng khách'
-    },
-    {
-        'id': '6',
-        'type': 'fan',
-        'name': 'Quạt 2',
-        'room': 'Phòng ngủ'
-    },
-    {
-        'id': '7',
-        'type': 'temp',
-        'name': 'Nhiệt độ',
-        'room': 'Phòng khách'
-    },
-    {
-        'id': '8',
-        'type': 'humid',
-        'name': 'Độ ẩm',
-        'room': 'Phòng khách'
-    },
-]
-
-const RangeField = ({ type, device={} }) => {
+const RangeField = ({ type, device={}, formik }) => {
     return (
         <Box sx={{ width: '130px' }}>
             <Typography variant="subtitle1">
@@ -90,11 +66,13 @@ const RangeField = ({ type, device={} }) => {
             <TextField
                 required
                 fullWidth
-                id={`${type}-${device.id}`}
-                name={`${type}-${device.id}`}
+                id={type}
+                name={type}
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
                 defaultValue={ type === 'min' ? device.min : device.max }
                 type='number'
-                autoComplete={`${type}-${device.id}`}
+                autoComplete={type}
                 sx={{
                     '& .MuiInputLabel-root.Mui-focused': {
                         color: '#6C63FF',
@@ -114,41 +92,42 @@ const RangeField = ({ type, device={} }) => {
     )
 }
 
-const ShowRange = ({ isAdd, sensor, device={} }) => {
+const ShowRange = ({ isAdd, sensor, device={}, formik }) => {
     if (isAdd) {
         if (sensor !== 'none' && sensor !== 'other') {
             return (
                 <Box sx={{ my: 1, display: 'flex', justifyContent: 'space-between' }}>
-                    <RangeField type='min' device={{ type: sensor }}/>
-                    <RangeField type='max' device={{ type: sensor }}/>
+                    <RangeField type='min' device={{ type: sensor }} formik={formik}/>
+                    <RangeField type='max' device={{ type: sensor }} formik={formik}/>
                 </Box>
             )
         } else return null;
     } else if (device.type) {
-        if (sensor === 'temp' || sensor === 'humid') {
+        if (sensor === 'temp' || sensor === 'humi') {
             return (
                 <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
-                    <RangeField type='min' device={{ type: sensor }}/>
-                    <RangeField type='max' device={{ type: sensor }}/>
+                    <RangeField type='min' device={{ type: sensor }} formik={formik}/>
+                    <RangeField type='max' device={{ type: sensor }} formik={formik}/>
                 </Box>
             )
         } else if (sensor === 'other') return null;
-        else if (sensor === 'none' && (device.type === 'temp' || device.type === 'humid')) {
+        else if (sensor === 'none' && (device.type === 'temp' || device.type === 'humi')) {
             return (
                 <Box sx={{my: 1, display: 'flex', justifyContent: 'space-between' }}>
-                    <RangeField type='min' device={{type: device.type}}/>
-                    <RangeField type='max' device={{type: device.type}}/>
+                    <RangeField type='min' device={device} formik={formik}/>
+                    <RangeField type='max' device={device} formik={formik}/>
                 </Box>
             )
         }
     } else return null;   
 }  
 
-const ModalButton = (props) => {
-    const bgcolor = props.type === 'update' || props.type === 'add' ? '#6C63FF' : 'Red'
+const ModalButton = ({ type, device, setShowModal, setModalOpen, setInfoModal }) => {
+    const bgcolor = type === 'update' || type === 'add' ? '#6C63FF' : 'Red'
     return (
         <Button
-            type="button"                   
+            type={type === 'add' || type ==='update' ? 'submit' : 'button'}
+            onClick={type === 'delete' ? () => DeleteDevice(device, setShowModal, setModalOpen, setInfoModal) : ''}                   
             variant="contained"
             sx = {{
                 mt: 3,
@@ -165,7 +144,7 @@ const ModalButton = (props) => {
             }}>
             {
                 (() => {
-                    switch (props.type) {
+                    switch (type) {
                         case 'add':
                             return 'Thêm';
                         case 'update':
@@ -181,171 +160,250 @@ const ModalButton = (props) => {
     )
 }
 
-const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
-    const [sensor, setSensor] = useState('none'); 
+const AlertModal = ({ showModal, setShowModal, infoModal }) => {
     return (
-        <Modal 
-            open={isModalOpen}
-            onClose={() => {setModalOpen(false); setSensor('none');}}
+        <Modal
+            open={showModal}
+            onClose={() => {setShowModal(false); window.location.reload();}}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
             sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-            <Box
-                sx={{width: '400px',
+            <Box sx={{width: '400px',
                     maxWidth: '80vw',
                     position: 'fixed',
-                    top: '2%',
-                    bgcolor: 'background.paper',
-                    p: 2,
-                    borderRadius: '20px',
-                    border: 'none' }}>
-                
-                {/* Title của modal */}
-                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="h6" component="h2" sx={{ display: 'flex', mr: 8}}>
-                        {
-                            isAdd ?
-                                <p style={{ margin: "0", color: 'black', fontSize: 16 }}>Thêm thiết bị mới cho phòng</p>
-                                :
-                                <>
-                                    <p style={{ margin: "0", color: 'black', fontSize: 16 }}>{device.name}&nbsp;&nbsp;&nbsp;&nbsp;</p>
-                                    <p style={{ margin: '0', color: 'gray', fontSize: 16 }}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device.room}</p>
-                                </>
-
-                        }
-                    </Typography>
-                    <IconButton onClick={() => {setModalOpen(false); setSensor('none');}}>
-                        <CloseOutlined />
-                    </IconButton>
-                </Box>
-
-                <Box sx={{m: 3}}>
-                    <FormControl fullWidth>
-
-                        {/* Nhập tên thiết bị */}
-                        <Box sx={{mb: 1}}>
-                            <Typography variant="subtitle1">
-                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Tên thiết bị</p>
-                            </Typography>
-                            <TextField
-                                required
-                                fullWidth
-                                id={'name-' + device.id}
-                                name={'name-' + device.id}
-                                defaultValue={device.name}
-                                autoComplete={'name-' + device.id}
-                                sx={{
-                                    '& .MuiInputLabel-root.Mui-focused': {
-                                        color: '#6C63FF',
-                                    },
-                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#6C63FF',
-                                    },
-                                    
-                                }}/>
-                        </Box>
-
-                        {/* Nhập feed key cho thiết bị */}
-                        <Box sx={{mb: 1}}>
-                            <Typography variant="subtitle1">
-                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Feed key</p>
-                            </Typography>
-                            <TextField
-                                required
-                                fullWidth
-                                id={'feed-' + device.id}
-                                name={'feed-' + device.id}
-                                defaultValue={device.feed}
-                                autoComplete={'feed-' + device.id}
-                                sx={{
-                                    '& .MuiInputLabel-root.Mui-focused': {
-                                        color: '#6C63FF',
-                                    },
-                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#6C63FF',
-                                    },
-                                    
-                                }}/>
-                        </Box>
-
-                        {/* Chọn loại thiết bị */}
-                        <Box sx={{my: 1}}>
-                            <Grid container justifyItems="flex-start" sx={{my: 1}}>
-                                <FormControl
-                                    fullWidth
-                                        sx={{
-                                        '& .MuiInputLabel-root.Mui-focused': {
-                                            color: '#6C63FF'
-                                        },
-                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#6C63FF'
-                                        }
-                                        }}>
-                                    <InputLabel id="type-select-label">Loại thiết bị</InputLabel>
-                                    <Select
-                                        labelId="type-select-label"
-                                        label="Loại thiết bị"
-                                        id={'type-' + device.id}
-                                        defaultValue={device.type}
-                                        onChange={(event) => {
-                                            const selectedValue = event.target.value;
-                                            if (selectedValue === 'temp') setSensor('temp');
-                                            else if (selectedValue === 'humid') setSensor('humid');
-                                            else setSensor('other');
-                                        }}>
-                                        <MenuItem value="light">Đèn</MenuItem>
-                                        <MenuItem value="fan">Quạt</MenuItem>
-                                        <MenuItem value="temp">Cảm biến nhiệt độ</MenuItem>
-                                        <MenuItem value="humid">Cảm biến độ ẩm</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        </Box>
-
-                        {/* Nhập mô tả */}
-                        <Box sx={{my: 1}}>
-                            <Typography variant="subtitle1">
-                                <p style={{ margin: "0", color: 'gray', fontSize: 12}}>Mô tả</p>
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={3}
-                                id={'description-' + device.id}
-                                name={'description-' + device.id}
-                                autoComplete={'description-' + device.id}
-                                value={device.description}
-                                sx={{
-                                    '& .MuiInputLabel-root.Mui-focused': {
-                                        color: '#6C63FF',
-                                    },
-                                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#6C63FF',
-                                    },
-                                }}/>
-                        </Box>
-
-                        {/* Nhập ngưỡng giới hạn cho thiết bị */}
-                        <ShowRange isAdd={isAdd} sensor={sensor} device={device}/>
-
-                        {/* Nút bấm cho modal */}
-                        <Box sx={{my: 1, display: 'flex', justifyContent: 'center'}}>
-                            {
-                                isAdd ?
-                                    <ModalButton type='add'/>                                    
-                                    : 
+                    top: '5%',
+                    bgcolor: 'white',
+                    
+                    borderRadius: '50px',
+                    border: 'none'}}>
+                <Alert
+                    severity="success"
+                    action={
+                        <IconButton
+                            aria-label="close"
+                            color="inherit"
+                            size="small"
+                            onClick={() => {
+                                setShowModal(false);
+                                window.location.reload();
+                            }}>
+                            <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                    }
+                    sx={{
+                        borderRadius: 5
+                    }}>
+                    {
+                        (() => {
+                            if (infoModal?.type === 'add') {
+                                return (
                                     <>
-                                        <ModalButton type='delete'/>
-                                        <ModalButton type='update'/> 
-                                    </> 
+                                        <strong>Thêm thiết bị thành công</strong>
+                                        <p style={{marginBottom: 0}}>Thiết bị: {infoModal?.name}</p>
+                                    </>
+                                )
+                            } else if (infoModal?.type === 'update') {
+                                return (
+                                    <>
+                                        <strong>Sửa thiết bị thành công</strong>
+                                        <p style={{marginBottom: 0}}>Thiết bị: {infoModal?.name}</p>
+                                    </>
+                                )
+                            } else if (infoModal?.type === 'delete') {
+                                return (
+                                    <>
+                                        <strong>Xóa thiết bị thành công</strong>
+                                        <p style={{marginBottom: 0}}>Thiết bị: {infoModal?.name}</p>
+                                    </>
+                                )
                             }
-                        </Box>
-                    </FormControl>
-                </Box>
+                        })()
+                    }           
+                </Alert>
             </Box>
         </Modal>
+    )
+}
+
+const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
+    const [showModal, setShowModal] = useState(false);
+    const [infoModal, setInfoModal] = useState({});
+    const formik = useFormik({
+        initialValues: {
+            name: isAdd ? '' : device.name,
+            feed: isAdd ? '' : device.feed,
+            type: isAdd ? '' : device.type,
+            min: isAdd ? '' : device.min,
+            max: isAdd ? '' : device.max,
+        },
+        validationSchema: Yup.object({
+            name: Yup
+                .string()
+                .required('Tên không được để trống'),
+            feed: Yup
+                .string()
+                .required('Feed key không được để trống'),
+            type: Yup
+                .string()
+                .oneOf(['light', 'fan', 'temp', 'humi'], 'Vui lòng chọn một loại thiết bị')
+        }),
+        validateOnMount: true,
+        onSubmit: async (values) => {
+            try {
+                if (isAdd) {
+                    const path = window.location.pathname;
+                    const id = path.split('/')[2];
+                    await axios.post('http://localhost:5000/api/device', {
+                        room: id,
+                        name: values.name,
+                        feed: values.feed,
+                        type: values.type,
+                        min: values.min,
+                        max: values.max
+                    });
+                    setModalOpen(false);
+                    setInfoModal({'type': 'add', 'name': values.name})
+                    setShowModal(true);
+                    console.log(values)
+                } else {
+                    const path = window.location.pathname;
+                    const roomId = path.split('/')[2];
+                    await axios.put('http://localhost:5000/api/device', {
+                        room: roomId,
+                        device: device.index,
+                        name: values.name,
+                        feed: values.feed,
+                        type: values.type,
+                        min: values.min,
+                        max: values.max
+                    });
+                    setModalOpen(false);
+                    setInfoModal({'type': 'update', 'name': values.name})
+                    setShowModal(true);
+                    console.log(values)
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        },
+    });
+    useEffect(formik.resetForm, [isModalOpen])
+    const [sensor, setSensor] = useState('none'); 
+    return (
+        <>
+            <AlertModal showModal={showModal} setShowModal={setShowModal} infoModal={infoModal}/>
+            <Modal 
+                open={isModalOpen}
+                onClose={() => {setModalOpen(false); setSensor('none'); formik.setTouched({})}}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                <Box
+                    sx={{width: '400px',
+                        maxWidth: '80vw',
+                        position: 'fixed',
+                        top: '10%',
+                        bgcolor: 'background.paper',
+                        p: 2,
+                        borderRadius: '20px',
+                        border: 'none' }}>
+                    
+                    {/* Title của modal */}
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="h6" component="h2" sx={{ display: 'flex', mr: 8}}>
+                            {
+                                isAdd ?
+                                    <p style={{ margin: "0", color: 'black', fontSize: 16 }}>Thêm thiết bị mới cho phòng</p>
+                                    :
+                                    <p style={{ margin: "0", color: 'black', fontSize: 16 }}>{device.name}</p>
+                            }
+                        </Typography>
+                        <IconButton onClick={() => {setModalOpen(false); setSensor('none'); formik.setTouched({})}}>
+                            <CloseOutlined />
+                        </IconButton>
+                    </Box>
+
+                    <Box sx={{m: 3}} >
+                        <FormControl component="form" fullWidth noValidate onSubmit={formik.handleSubmit}>
+                            {/* Nhập tên thiết bị */}
+                            <Box sx={{mb: 1}}>
+                                <Field type='name' label='Tên thiết bị' formik={formik}/>
+                            </Box>
+                            {/* Nhập feed key cho thiết bị */}
+                            <Box sx={{mb: 1}}>
+                                <Field type='feed' label='Feed key' formik={formik}/>
+                            </Box>
+
+                            {/* Chọn loại thiết bị */}
+                            <Box sx={{my: 1}}>
+                                <Grid container justifyItems="flex-start" sx={{my: 1}}>
+                                    <FormControl
+                                        fullWidth
+                                            sx={{
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: '#6C63FF'
+                                            },
+                                            '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#6C63FF'
+                                            }
+                                            }}>
+                                        <InputLabel id="type-select-label">Loại thiết bị</InputLabel>
+                                        <Select
+                                            labelId="type-select-label"
+                                            label="Loại thiết bị"
+                                            id='type'
+                                            name='type'
+                                            value={formik.values['type'] || device.type}
+                                            error={formik.touched['type'] && Boolean(formik.errors['type'])}
+                                            helperText={formik.touched['type'] && formik.errors['type']}
+                                            onBlur={formik.handleBlur}
+                                            onChange={(event) => {   
+                                                formik.handleChange(event);                                        
+                                                const selectedValue = event.target.value;
+                                                if (selectedValue === 'temp') setSensor('temp');
+                                                else if (selectedValue === 'humi') setSensor('humi');
+                                                else setSensor('other');
+                                            }}>
+                                            <MenuItem value="light">Đèn</MenuItem>
+                                            <MenuItem value="fan">Quạt</MenuItem>
+                                            <MenuItem value="temp">Cảm biến nhiệt độ</MenuItem>
+                                            <MenuItem value="humi">Cảm biến độ ẩm</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            </Box>
+
+                            {/* Nhập ngưỡng giới hạn cho thiết bị */}
+                            <ShowRange isAdd={isAdd} sensor={sensor} device={device} formik={formik}/>
+
+                            {/* Nút bấm cho modal */}
+                            <Box sx={{my: 1, display: 'flex', justifyContent: 'center'}}>
+                                {
+                                    isAdd ?
+                                        <ModalButton type='add'/>                                    
+                                        : 
+                                        <>
+                                            <ModalButton
+                                                type='delete'
+                                                device={device}
+                                                setShowModal={setShowModal}
+                                                setModalOpen={setModalOpen}
+                                                setInfoModal={setInfoModal}/>
+                                            <ModalButton type='update'/> 
+                                        </> 
+                                }
+                            </Box>
+                        </FormControl>
+                    </Box>
+                </Box>
+            </Modal>
+        </>
     )
 }
 
@@ -377,22 +435,13 @@ const AddDevice = () => {
 
 const SwitchItem = (props) => {
     const [isModalOpen, setModalOpen] = useState(false);
-
+    const device = props.device;
     const IconMapping = {
         'light': LightIcon,
         'fan': FanIcon,
         'temp': SensorIcon,
-        'humid': SensorIcon,
+        'humi': SensorIcon,
     }
-
-    let device = () => {
-        for (let i in Data) {
-            if (Data[i]['id'] === props.id) {
-                return Data[i];
-            }
-        }
-    }
-
     return (
         <>
             <Box 
@@ -410,7 +459,7 @@ const SwitchItem = (props) => {
                     },
                 }}>
                 <img
-                    src={IconMapping[device()['type']]}
+                    src={IconMapping[device['type']]}
                     alt="icon"
                     style={{
                         width: "28px",
@@ -419,19 +468,44 @@ const SwitchItem = (props) => {
                         marginRight: "10px",
                         boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
                     }}/>
-                <p style={{marginBottom: '0', color: 'black'}}>{device()['name']}&nbsp;&nbsp;&nbsp;&nbsp;</p>
-                <p style={{marginBottom: '0',}}>&gt;&nbsp;&nbsp;&nbsp;&nbsp;{device()['room']}</p>
+                <p style={{marginBottom: '0', color: 'black'}}>{device['name']}&nbsp;&nbsp;&nbsp;&nbsp;</p>
             </Box>
-            <DeviceModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} device={{ type: device()['type'] }}/>
+            <DeviceModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} device={device}/>
         </>
     )
 }
 
 export default function Page () {
+    const [roomName, setRoomName] = useState(undefined);
+    const [listDevices, setListDevices] = useState(null);
+    useEffect(() => {
+        async function fetchDevices() {
+            const response = await GetDevices();
+            setListDevices(response);
+        }
+        fetchDevices();
+    }, []);
+    useEffect(() => {
+        async function fetchRoom() {
+            const path = window.location.pathname;
+            const id = path.split('/')[2];
+            const response = await axios.get('http://localhost:5000/api/rooms');
+            const room = await response.data;
+            setRoomName(room[id]['name']);
+        };
+        fetchRoom();
+     }
+    , []);
+    const lights = listDevices?.map((device, index) => ({...device, index})).filter(device => device.type === 'light');
+    const fans = listDevices?.map((device, index) => ({...device, index})).filter(device => device.type === 'fan');
+    const sensors = listDevices?.map((device, index) => ({...device, index})).filter(device => device.type === 'temp' || device.type === 'humi');
     return (
         <Grid spacing={2} sx={{m: 4}}>
             <Grid xs={12} sx={{p: 1, display: 'flex', alignItems: 'center'}}>
-                <Typography color='primary' sx={{mr: 2, fontWeight: 'bold', fontSize: '1.25rem', color: 'secondary'}}>
+                <Typography color='primary' sx={{ display: 'flex', mr: 2, fontWeight: 'bold', fontSize: '1.25rem', color: 'secondary'}}>
+                    <p style={{ color: 'grey', fontWeight: 'bold', marginBottom: '0'}}>
+                        {roomName}&nbsp;&nbsp;&nbsp;&nbsp;&gt;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </p>
                     Thiết bị và Cảm biến
                 </Typography>
                 <AddDevice/>
@@ -440,24 +514,22 @@ export default function Page () {
                 <Grid xs={4} sx={{p: 1}}>
                     <Item>
                         <Typography sx={{mb: 3}}>Đèn</Typography>
-                        <SwitchItem id='1'/>
-                        <SwitchItem id='2'/>
-                        <SwitchItem id='3'/>
-                        <SwitchItem id='4'/>
+                        {lights?.length ? lights.map((device) => <SwitchItem device={device}/>) 
+                        : <Typography sx={{color: 'black', textAlign: 'center'}}> Không có thiết bị </Typography>}
                     </Item>                     
                 </Grid>
                 <Grid xs={4} sx={{p: 1}}>
                     <Item>
-                        <Typography sx={{mb: 3}}>Thiết bị</Typography>
-                        <SwitchItem id='5'/>
-                        <SwitchItem id='6'/>
+                        <Typography sx={{mb: 3}}>Quạt</Typography>
+                        {fans?.length ? fans.map((device) => <SwitchItem device={device}/>) 
+                        : <Typography sx={{color: 'black', textAlign: 'center'}}> Không có thiết bị </Typography>}
                     </Item> 
                 </Grid>
                 <Grid xs={4} sx={{p: 1}}>
                     <Item>
                         <Typography sx={{mb: 3}}>Cảm biến</Typography>
-                        <SwitchItem id='7'/>
-                        <SwitchItem id='8'/>
+                        {sensors?.length ? sensors.map((device) => <SwitchItem device={device}/>) 
+                        : <Typography sx={{color: 'black', textAlign: 'center'}}> Không có thiết bị </Typography>}
                     </Item> 
                 </Grid>
             </Grid>

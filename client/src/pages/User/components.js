@@ -29,7 +29,7 @@ const SmartHomeImage = () => {
     )
 }
 
-const Field = ({type, label, value, formik}) => {
+const Field = ({type, label, formik}) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleClickShowPassword = () => {
@@ -82,7 +82,7 @@ const Field = ({type, label, value, formik}) => {
             helperText={formik?.touched[type] && formik?.errors[type]}
             onBlur={formik?.handleBlur}
             onChange={formik?.handleChange}
-            value={formik?.values[type] || value}
+            defaultValue={formik?.values[type]}
             sx={{
                 '& .MuiInputLabel-root.Mui-focused': {
                     color: '#6C63FF',

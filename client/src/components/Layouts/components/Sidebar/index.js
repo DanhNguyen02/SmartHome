@@ -42,11 +42,6 @@ function Sidebar() {
           <Link to="/dashboard">
             <CDBSidebarMenuItem icon="th-large">Dashboard</CDBSidebarMenuItem>
           </Link>
-          <Link to="/devices">
-          <CDBSidebarMenuItem icon="laptop">
-            Thiết bị và cảm biến
-          </CDBSidebarMenuItem>
-          </Link>
           <Link to="/rooms">
             <CDBSidebarMenuItem icon="kaaba" iconType="solid">
               Phòng

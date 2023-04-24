@@ -13,6 +13,9 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { Link } from "react-router-dom";
+import { Divider } from '@material-ui/core';
+import axios from 'axios';
+
 
 const Username = "Hung Nguyen";
 
@@ -57,11 +60,34 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar() {
+  const [notifications, setNotifications] = React.useState([]);
+  const [badgeCount, setBadgeCount] = React.useState(0);
+
+  React.useEffect(() => {
+    axios.get('http://localhost:5000/api/noti')
+      .then(response => {
+        setNotifications(response.data.reverse());
+        setBadgeCount(response.data.length);
+      })
+      .catch(error => console.error(error));
+  }, []);
+  console.log(notifications)
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const [showNoti, setShowNoti] = React.useState(null);
+
+  const handleClick = (event) => {
+    setShowNoti(event.currentTarget);
+  };
+  const handleClose = () => {
+    setShowNoti(null);
+  };
+
+  const open = Boolean(showNoti);
+  const id = open ? 'notification-popover' : undefined;
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -154,6 +180,7 @@ export default function PrimarySearchAppBar() {
   );
 
   return (
+    
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
         position="static"
@@ -188,9 +215,49 @@ export default function PrimarySearchAppBar() {
               aria-label="show 17 new notifications"
               color="inherit"
             >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
+              <Badge badgeContent={badgeCount} color="error" onClick={handleClick}>
+              <NotificationsIcon />
               </Badge>
+              <Menu
+                id={id}
+                anchorEl={showNoti}
+                open={Boolean(showNoti)}
+                onClose={handleClose}>
+                  {notifications.map((notification, index) => (
+                    <>
+                      {index !== 0 && <Box sx={{
+                        height: '2px',
+                        borderTop: '2px solid #6C63FF',
+                        borderColor: '#6C63FF',
+                        my: 2,
+                      }} />}
+                      <MenuItem sx={{
+                        fontSize: 13,
+                        width: '320px',
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
+                        borderRadius: '10px',
+                        m: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'flex-start',
+                      }}>
+                        <span>
+                          Thiết bị vượt ngưỡng cho phép:
+                          <span style={{fontWeight: 'bold', color: '#6C63FF'}}> {notification.device} - </span>
+                          <span style={{fontWeight: 'bold', color: '#6C63FF'}}> {notification.room}</span>
+                        </span>
+                        <span>Thông số:
+                          <span style={{fontWeight: 'bold', color: '#6C63FF'}}> {notification.data}</span>
+                        </span>
+                        <span>Thời gian:
+                          <span style={{fontWeight: 'bold', color: '#6C63FF'}}> {notification.time}</span>
+                        </span>
+                      </MenuItem>
+                    </>
+                  ))}
+              </Menu>
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
