@@ -351,11 +351,13 @@ module.exports = {
     };
     db_connect.collection("user").findOne({}, function (err, result) {
       if (err) return res.status(500).send("Something went wrong!");
+      const io = req.io;
       let noti = result.noti;
       noti.push(newNoti);
       db_connect
         .collection("user")
         .updateOne({ email: "test@gmail.com" }, { $set: { noti: noti } });
+      io.emit("newNoti", "Notification received");
       return res
         .status(200)
         .json({ message: "Notification has been added", noti: noti });
