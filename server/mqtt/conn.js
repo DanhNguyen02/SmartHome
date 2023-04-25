@@ -50,19 +50,23 @@ module.exports = {
                   type: device.type,
                   data: message.toString(),
                 };
-                db_connect.collection("user").findOne({}, function (err, result) {
-                  if (err) throw err;
-                  let noti = result.noti;
-                  noti.push(newNoti);
-                  db_connect.collection("user").updateOne(
-                    { email: "test@gmail.com" },
-                    { $set: { noti: noti } },
-                    function(err, result) {
-                      if (err) throw err;
-                      socketIo.emit('newNoti', 'Received notification');
-                    }
-                  );
-                });
+                db_connect
+                  .collection("user")
+                  .findOne({}, function (err, result) {
+                    if (err) throw err;
+                    let noti = result.noti;
+                    noti.push(newNoti);
+                    db_connect
+                      .collection("user")
+                      .updateOne(
+                        { email: "test@gmail.com" },
+                        { $set: { noti: noti } },
+                        function (err, result) {
+                          if (err) throw err;
+                          socketIo.emit("newNoti", "Received notification");
+                        }
+                      );
+                  });
               }
             }
           }
