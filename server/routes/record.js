@@ -108,18 +108,18 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  *   post:
  *     summary: Add light's data to adafruit server
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Topic and data to send to adafruit server
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            topic:
- *              type: string
- *            data:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  topic:
+ *                    type: string
+ *                  data:
+ *                    type: string
  *     tags: [Light]
  *     responses:
  *       200:
@@ -157,15 +157,18 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *     parameters:
  *       - in: body
  *         name: body
+ *     requestBody:
  *         description: Topic and data to send to adafruit server
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            topic:
- *              type: string
- *            data:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  topic:
+ *                    type: string
+ *                  data:
+ *                    type: string
  *     tags: [Fan]
  *     responses:
  *       200:
@@ -224,20 +227,20 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  *   put:
  *     summary: Update room
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Room index and room's data to update
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            room:
- *              type: string
- *            name:
- *              type: string
- *            desc:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  room:
+ *                    type: string
+ *                  name:
+ *                    type: string
+ *                  desc:
+ *                    type: string
  *     tags: [Room]
  *     responses:
  *       200:
@@ -248,16 +251,16 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  *   delete:
  *     summary: Delete room
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Room index to delete
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            room:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  room:
+ *                    type: string
  *     tags: [Room]
  *     responses:
  *       200:
@@ -302,26 +305,26 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  * /api/device:
  *   post:
  *     summary: Add new device to room
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Room index and device's data to add
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            room:
- *              type: string
- *            name:
- *              type: string
- *            feed:
- *              type: string
- *            type:
- *              type: string
- *            min:
- *              type: string
- *            max:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  room:
+ *                    type: string
+ *                  name:
+ *                    type: string
+ *                  feed:
+ *                    type: string
+ *                  type:
+ *                    type: string
+ *                  min:
+ *                    type: string
+ *                  max:
+ *                    type: string
  *     tags: [Device]
  *     responses:
  *       200:
@@ -332,28 +335,26 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  *   put:
  *     summary: Update device
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Room index, device index and device's data to update
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            room:
- *              type: string
- *            device:
- *              type: string
- *            name:
- *              type: string
- *            feed:
- *              type: string
- *            type:
- *              type: string
- *            min:
- *              type: string
- *            max:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  room:
+ *                    type: string
+ *                  name:
+ *                    type: string
+ *                  feed:
+ *                    type: string
+ *                  type:
+ *                    type: string
+ *                  min:
+ *                    type: string
+ *                  max:
+ *                    type: string
  *     tags: [Device]
  *     responses:
  *       200:
@@ -364,18 +365,18 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  *   delete:
  *     summary: Delete device
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Room index and device index to delete
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            room:
- *              type: string
- *            device:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  room:
+ *                    type: string
+ *                  device:
+ *                    type: string
  *     tags: [Device]
  *     responses:
  *       200:
@@ -437,20 +438,20 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  *   post:
  *     summary: Add new notification
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Room, device and data need to notice
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            room:
- *              type: string
- *            device:
- *              type: string
- *            data:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  room:
+ *                    type: string
+ *                  device:
+ *                    type: string
+ *                  data:
+ *                    type: string
  *     tags: [Notifications]
  *     responses:
  *       200:
@@ -461,18 +462,18 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  *   put:
  *     summary: Update notification
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Notification index to update
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            noti:
- *              type: string
- *            status:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  noti:
+ *                    type: string
+ *                  status:
+ *                    type: string
  *     tags: [Notifications]
  *     responses:
  *       200:
@@ -483,16 +484,16 @@ recordRoutes.route("/noti").delete(recordControllers.deleteNoti);
  *         description: Internal server error
  *   delete:
  *     summary: Delete notification
- *     parameters:
- *       - in: body
- *         name: body
+ *     requestBody:
  *         description: Notification index to delete
  *         required: true
- *         schema:
- *          type: object
- *          properties:
- *            noti:
- *              type: string
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  noti:
+ *                    type: string
  *     tags: [Notifications]
  *     responses:
  *       200:
