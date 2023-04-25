@@ -38,15 +38,18 @@ const GetDevices = async () => {
 }
 
 const DeleteDevice = async (device, setShowModal, setModalOpen, setInfoModal) => {
-    const path = window.location.pathname;
-    const roomId = path.split('/')[2];
-    setInfoModal({'type': 'delete', 'name': device.name})
-    await axios.delete('http://localhost:5000/api/device', {
-        room: roomId,
-        device: device.index
-    });
-    setModalOpen(false);
-    setShowModal(true);
+    try {
+        const path = window.location.pathname;
+        const roomId = path.split('/')[2];
+        setInfoModal({'type': 'delete', 'name': device.name})
+        await axios.delete('http://localhost:5000/api/device', {
+            data: { room: roomId, device: device.index },
+        });
+        setModalOpen(false);
+        setShowModal(true);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -247,7 +250,7 @@ const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
                 .required('Feed key không được để trống'),
             type: Yup
                 .string()
-                .oneOf(['light', 'fan', 'temp', 'humi'], 'Vui lòng chọn một loại thiết bị')
+                .required('Loại thiết bị không được để trống'),
         }),
         validateOnMount: true,
         onSubmit: async (values) => {
@@ -361,18 +364,23 @@ const DeviceModal = ({ isAdd, isModalOpen, setModalOpen, device={} }) => {
                                             error={formik.touched['type'] && Boolean(formik.errors['type'])}
                                             helperText={formik.touched['type'] && formik.errors['type']}
                                             onBlur={formik.handleBlur}
-                                            onChange={(event) => {   
-                                                formik.handleChange(event);                                        
+                                            onInputChange={() => formik.handleChange()}
+                                            onChange={(event) => {                                         
                                                 const selectedValue = event.target.value;
                                                 if (selectedValue === 'temp') setSensor('temp');
                                                 else if (selectedValue === 'humi') setSensor('humi');
                                                 else setSensor('other');
+                                                formik.setFieldValue('type', selectedValue);
                                             }}>
                                             <MenuItem value="light">Đèn</MenuItem>
                                             <MenuItem value="fan">Quạt</MenuItem>
                                             <MenuItem value="temp">Cảm biến nhiệt độ</MenuItem>
                                             <MenuItem value="humi">Cảm biến độ ẩm</MenuItem>
                                         </Select>
+                                        {formik.touched['type'] && Boolean(formik.errors['type']) && 
+                                        <Typography color="error" variant="caption" sx={{mt: '3px', mx: '14px'}}>{
+                                            formik.touched['type'] && formik.errors['type']
+                                        }</Typography>}
                                     </FormControl>
                                 </Grid>
                             </Box>

@@ -13,7 +13,7 @@ const client = mqtt.connect(connectUrl, {
 });
 
 module.exports = {
-  subcribe: function (callback) {
+  subcribe: function (callback, socketIo) {
     const topics = [
       "haiche198/feeds/yolo-led",
       "haiche198/feeds/yolo-fan",
@@ -47,21 +47,22 @@ module.exports = {
                   time: new Date().toLocaleString(),
                   room: room.name,
                   device: device.name,
+                  type: device.type,
                   data: message.toString(),
                 };
-                db_connect
-                  .collection("user")
-                  .findOne({}, function (err, result) {
-                    if (err) throw err;
-                    let noti = result.noti;
-                    noti.push(newNoti);
-                    db_connect
-                      .collection("user")
-                      .updateOne(
-                        { email: "test@gmail.com" },
-                        { $set: { noti: noti } }
-                      );
-                  });
+                db_connect.collection("user").findOne({}, function (err, result) {
+                  if (err) throw err;
+                  let noti = result.noti;
+                  noti.push(newNoti);
+                  db_connect.collection("user").updateOne(
+                    { email: "test@gmail.com" },
+                    { $set: { noti: noti } },
+                    function(err, result) {
+                      if (err) throw err;
+                      socketIo.emit('newNoti', 'Received notification');
+                    }
+                  );
+                });
               }
             }
           }
