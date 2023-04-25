@@ -69,25 +69,13 @@ export default function PrimarySearchAppBar() {
 
   React.useEffect(() => {
   // Fetch initial notifications data
-    axios.get('http://localhost:5000/api/noti')
-      .then(response => {
-        setNotifications(response.data.reverse());
-        setBadgeCount(response.data.length);
-      })
-      .catch(error => console.error(error));
-
-    // Listen for newNoti event from Socket.io
-    socket.on('newNoti', () => {
-      // Call the same function that fetches initial notifications data
-      axios.get('http://localhost:5000/api/noti')
-        .then(response => {
-          setNotifications(response.data.reverse());
-          setBadgeCount(response.data.length);
-        })
-        .catch(error => console.error(error));
-  });
-
-    // Cleanup function to remove Socket.io listener
+    const GetNotification = async () => {
+      const response = await axios.get('http://localhost:5000/api/noti');
+      setNotifications(response.data.reverse());
+      setBadgeCount(response.data.length);
+    }
+    GetNotification();
+    socket.on('newNoti', () => GetNotification());
     return () => socket.off('newNoti');
   }, []);
 
@@ -231,10 +219,9 @@ export default function PrimarySearchAppBar() {
             <IconButton
               size="large"
               aria-label="show 17 new notifications"
-              color="inherit"
-            >
+              color="inherit">
               <Badge badgeContent={badgeCount} color="error" onClick={handleClick}>
-              <NotificationsIcon />
+              <NotificationsIcon/>
               </Badge>
               <Menu
                 id={id}
@@ -277,14 +264,13 @@ export default function PrimarySearchAppBar() {
                             alignItems: 'flex-start',
                           }}>
                         <span>
-                          Cảm biến&nbsp;
-                          <span style={{fontWeight: 'bold'}}>{notification.device}</span>
-                          &nbsp;tại&nbsp;
+                          <span style={{fontWeight: 'bold'}}>{notification.device}&nbsp;-&nbsp;</span>
                           <span style={{fontWeight: 'bold'}}>{notification.room}</span>
-                          &nbsp;vượt ngưỡng cho phép
+                          &nbsp;vượt ngưỡng cho phép:&nbsp;
+                          <span style={{fontWeight: 'bold'}}>{notification.data}{notification.type === 'temp' ? '°C' : '%'}</span>
                         </span>
                         <span>
-                          <span style={{color: 'gray', fontSize: 12}}> {notification.time}</span>
+                          <span style={{color: 'gray', fontSize: 12}}>{notification.time}</span>
                         </span>
                         </Box>
                       </MenuItem>
@@ -294,7 +280,8 @@ export default function PrimarySearchAppBar() {
                     width: '370px',
                     whiteSpace: 'normal',
                     wordBreak: 'break-word',
-                  }}></MenuItem>}
+                    justifyContent: 'center'
+                  }}>Không có thông báo</MenuItem>}
                   </Box>
               </Menu>
             </IconButton>
