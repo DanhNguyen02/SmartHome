@@ -13,8 +13,6 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { Link } from "react-router-dom";
-import { Button } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
 import { Divider } from '@material-ui/core';
 import SensorIcon from "../../../../assets/images/sensorIcon.png";
 import axios from 'axios';
@@ -71,28 +69,14 @@ export default function PrimarySearchAppBar() {
 
   React.useEffect(() => {
   // Fetch initial notifications data
-    axios.get('http://localhost:5000/api/noti')
-      .then(response => {
-        setNotifications(response.data.reverse());
-        setBadgeCount(response.data.length);
-      })
-      .catch(error => console.error(error));
-
-    // Listen for newNoti event from Socket.io
-    socket.on('newNoti', () => {
-      // Call the same function that fetches initial notifications data
-      axios.get('http://localhost:5000/api/noti')
-        .then(response => {
-          setNotifications(response.data.reverse());
-          setBadgeCount(response.data.length);
-        })
-        .catch(error => console.error(error));
-  });
-
-    // Cleanup function to remove Socket.io listener
-    return () => {
-      socket.off('newNoti');
-    };
+    const GetNotification = async () => {
+      const response = await axios.get('http://localhost:5000/api/noti');
+      setNotifications(response.data.reverse());
+      setBadgeCount(response.data.length);
+    }
+    GetNotification();
+    socket.on('newNoti', () => GetNotification());
+    return () => socket.off('newNoti');
   }, []);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -235,10 +219,9 @@ export default function PrimarySearchAppBar() {
             <IconButton
               size="large"
               aria-label="show 17 new notifications"
-              color="inherit"
-            >
+              color="inherit">
               <Badge badgeContent={badgeCount} color="error" onClick={handleClick}>
-              <NotificationsIcon />
+              <NotificationsIcon/>
               </Badge>
               <Menu
                 id={id}
@@ -257,7 +240,7 @@ export default function PrimarySearchAppBar() {
                       {index !== 0 && <Divider/>}
                       <MenuItem sx={{
                         fontSize: 14,
-                        maxWidth: '400px',
+                        maxWidth: '370px',
                         whiteSpace: 'normal',
                         wordBreak: 'break-word',
                       }}>
@@ -281,24 +264,24 @@ export default function PrimarySearchAppBar() {
                             alignItems: 'flex-start',
                           }}>
                         <span>
-                          Cảm biến&nbsp;
-                          <span style={{fontWeight: 'bold'}}>{notification.device}</span>
-                          &nbsp;tại phòng&nbsp;
+                          <span style={{fontWeight: 'bold'}}>{notification.device}&nbsp;-&nbsp;</span>
                           <span style={{fontWeight: 'bold'}}>{notification.room}</span>
-                          &nbsp;vượt ngưỡng cho phép
+                          &nbsp;vượt ngưỡng cho phép:&nbsp;
+                          <span style={{fontWeight: 'bold'}}>{notification.data}{notification.type === 'temp' ? '°C' : '%'}</span>
                         </span>
                         <span>
-                          <span style={{color: 'gray', fontSize: 12}}> {notification.time}</span>
+                          <span style={{color: 'gray', fontSize: 12}}>{notification.time}</span>
                         </span>
                         </Box>
                       </MenuItem>
                     </>
                   )) : <MenuItem sx={{
                     fontSize: 14,
-                    width: '400px',
+                    width: '370px',
                     whiteSpace: 'normal',
                     wordBreak: 'break-word',
-                  }}></MenuItem>}
+                    justifyContent: 'center'
+                  }}>Không có thông báo</MenuItem>}
                   </Box>
               </Menu>
             </IconButton>
