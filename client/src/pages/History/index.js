@@ -231,7 +231,7 @@ function History() {
 
   function checkEndDate(data) {
     let fullday = data.time.split(',')[0].split('/');
-    let month = fullday[0], day = fullday[1], year = fullday[2];
+    let day = fullday[0], month = fullday[1], year = fullday[2];
     if (year > endDate.year()) return false;
     else if (year == endDate.year()) {
       if (month > endDate.month() + 1) return false;
@@ -283,7 +283,7 @@ function History() {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis />
+            <XAxis dataKey='time'/>
             <YAxis />
             <Tooltip />
             <Legend />

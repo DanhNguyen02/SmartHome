@@ -33,44 +33,6 @@ const MARGIN_LEFT = "20px";
 const today = new Date().toLocaleDateString();
 var timewithsec = new Date().toLocaleTimeString();
 const time = timewithsec.substring(0, timewithsec.length - 6);
-let room = 1;
-const DATA = [
-  {
-    time: "00h00",
-    temperature: 21,
-    humidity: 64,
-  },
-  {
-    time: "01h00",
-    temperature: 23,
-    humidity: 61,
-  },
-  {
-    time: "02h00",
-    temperature: 24,
-    humidity: 65,
-  },
-  {
-    time: "03h00",
-    temperature: 20,
-    humidity: 67,
-  },
-  {
-    time: "04h00",
-    temperature: 24,
-    humidity: 70,
-  },
-  {
-    time: "05h00",
-    temperature: 25,
-    humidity: 64,
-  },
-  {
-    time: "06h00",
-    temperature: 26,
-    humidity: 72,
-  },
-];
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -84,30 +46,50 @@ function Dashboard() {
   const [fanVolume, setFanVolume] = useState([]);
   const [TEMP, setTemp] = useState([]);
   const [HUMI, setHumi] = useState([]);
-  const [theRoom, setRoom] = useState(null);
   const [nameRoom, setNameRoom] = useState(null);
+  const room = useRef(null);
   useEffect(function effectFunction() {
-    fetch(`http://localhost:5000/api/light/` + "?room=" + room)
-      .then((response) => response.json())
+    fetch(`http://localhost:5000/api/light/` + "?room=" + room.current)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('404 not found');
+        }
+        return response.json()
+      })
       .then(({ message: light }) => {
         setLightValue(light == 1 ? true : false);
       });
-    fetch(`http://localhost:5000/api/fan/` + "?room=" + room)
-      .then((response) => response.json())
+    fetch(`http://localhost:5000/api/fan/` + "?room=" + room.current)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('404 not found');
+        }
+        return response.json()
+      })
       .then(({ message: fan }) => {
         setFanVolume(parseInt(fan));
       });
-    fetch(`http://localhost:5000/api/temp/` + "?room=" + room)
-      .then((response) => response.json())
+    fetch(`http://localhost:5000/api/temp/` + "?room=" + room.current)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('404 not found');
+        }
+        return response.json()
+      })
       .then(({ message: temp }) => {
         setTemp(temp);
       });
-    fetch(`http://localhost:5000/api/humi/` + "?room=" + room)
-      .then((response) => response.json())
+    fetch(`http://localhost:5000/api/humi/` + "?room=" + room.current)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('404 not found');
+        }
+        return response.json()
+      })
       .then(({ message: humi }) => {
         setHumi(humi);
       });
-  }, []);
+  }, [room.current]);
 
   const [listRooms, setListRooms] = useState([]);
 
@@ -190,8 +172,10 @@ function Dashboard() {
     timer = setInterval(() => {
       const sec = new Date().getSeconds();
       if (sec % 6) return;
-      fetchTemp();
-      fetchHumi();
+      if (room.current != null) {
+        fetchTemp();
+        fetchHumi();
+      }
     }, 1000);
     return () => {
       clearInterval(timer);
@@ -200,13 +184,11 @@ function Dashboard() {
 
   async function fetchTemp() {
     const response = await fetch(
-      `http://localhost:5000/api/temp/` + "?room=" + room
+      `http://localhost:5000/api/temp/` + "?room=" + room.current
     );
 
     if (!response.ok) {
-      const message = `An error occured: ${response.statusText}`;
-      window.alert(message);
-      return;
+      throw new Error('404 not found');
     }
 
     const record = await response.json();
@@ -215,8 +197,64 @@ function Dashboard() {
 
   async function fetchHumi() {
     const response = await fetch(
-      `http://localhost:5000/api/humi/` + "?room=" + room
+      `http://localhost:5000/api/humi/` + "?room=" + room.current
     );
+
+    if (!response.ok) {
+      throw new Error('404 not found');
+    }
+
+    const record = await response.json();
+    setHumi(record.message);
+  }
+
+  const [device, setDevice] = useState(null);
+  const [record, setRecord] = useState([])
+  const [nameField, setNameField] = useState("");
+
+  const getData = (device) => {
+    if (room.current == null || device == null) setRecord([]);
+    getSensorRecords(device);
+  }
+
+  function getDataInDay(record) {
+    let fullday = record.time.split(',')[0];
+    fullday = fullday.split("/");
+    let month = fullday[0], day = fullday[1], year = fullday[2];
+    const d = new Date();
+    if (day == d.getDate() && month == d.getMonth() + 1 && year == d.getFullYear()) return true;
+    return false;
+  }
+
+  function parseTime(record) {
+    let fulltime = record.time.split(',')[1].substring(1);
+    let a = fulltime.split(' ');
+    let time = a[0], isAM = (a[1] == 'am' || a[1] == 'AM') ? true : false;
+    time = time.split(":");
+    let hour = time[0], minute = time[1], second = time[2];
+    if (isAM) {
+      record.time = hour + ":" + + minute + ":" + record;
+    }
+    else {
+      if (parseInt(hour) == 12) {
+        record.time = hour + ":" + minute + ":" + second;
+      }
+      else {
+        record.time = (parseInt(hour) + 12) + ":" + minute + ":" + second;
+      }
+    }
+    return record;
+  }
+ 
+  async function getSensorRecords(device) {
+    let url = 'http://localhost:5000/api/data?room=' + room.current + '&device=' + device;
+    console.log(url);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
 
     if (!response.ok) {
       const message = `An error occured: ${response.statusText}`;
@@ -224,8 +262,13 @@ function Dashboard() {
       return;
     }
 
-    const record = await response.json();
-    setHumi(record.message);
+    let data = await response.json();
+    console.log(data);
+    data = data.filter(getDataInDay);
+    console.log(data);
+    data = data.map(parseTime);
+    console.log(data);
+    setRecord(data.reverse());
   }
 
   return (
@@ -234,17 +277,17 @@ function Dashboard() {
         <Link underline="hover" color="inherit" href="/">
           Dashboard
         </Link>
-        {/* <Typography color="text.primary">{ROOM}</Typography> */}
         <Autocomplete
           disablePortal
           id="listrooms"
           value={nameRoom}
           onChange={(event, nameRoom) => {
-            for (let room of listRooms) {
-              if (room.name === nameRoom) {
-                setRoom(listRooms.indexOf(room));
+            for (let theRoom of listRooms) {
+              if (theRoom.name === nameRoom) {
+                room.current = listRooms.indexOf(theRoom);
               }
             }
+            if (nameRoom == null) room.current = null;
             setNameRoom(nameRoom);
           }}
           options={listRooms.map((room) => room.name)}
@@ -257,8 +300,44 @@ function Dashboard() {
           <Grid item xs={8}>
             <Item sx={{ minHeight: "350px" }}>
               <Box sx={{ position: "relative" }}>
-                <p>Biểu đồ dữ liệu</p>
-                <h5>{theRoom == null ? theRoom : listRooms[theRoom].name}</h5>
+                <Box sx={{display: 'flex'}}>
+                  <Box>
+                    <p>Biểu đồ dữ liệu</p>
+                    <h5>{room.current == null ? room.current : listRooms[room.current].name}</h5>
+                  </Box>
+                  {room.current != null ? 
+                  <>
+                    {(listRooms[room.current].devices).filter(device => device.type == 'temp').length > 0 ? 
+                    <Button 
+                      variant="contained" 
+                      sx={{marginLeft: 3, height: '50%'}}
+                      onClick={() => {
+                        const tempSensor = listRooms[room.current].devices.filter(device => device.type == 'temp')[0];
+                        setDevice(listRooms[room.current].devices.indexOf(tempSensor))
+                        getData(listRooms[room.current].devices.indexOf(tempSensor))
+                        setNameField("Nhiệt độ");
+                      }}
+                    >
+                      Nhiệt độ
+                    </Button>
+                    : <></> }
+                    {(listRooms[room.current].devices).filter(device => device.type == 'humi').length > 0 ?
+                    <Button 
+                      variant="contained" 
+                      sx={{marginLeft: 3, height: '50%'}}
+                      onClick={() => {
+                        const tempSensor = listRooms[room.current].devices.filter(device => device.type == 'humi')[0];
+                        setDevice(listRooms[room.current].devices.indexOf(tempSensor))
+                        getData(listRooms[room.current].devices.indexOf(tempSensor))
+                        setNameField("Độ ẩm");
+                      }}
+                    >
+                      Độ ẩm
+                    </Button>
+                    : <></> }
+                  </>
+                  : <></> }
+                </Box>
                 <Link href="/history">
                   <Button
                     variant="outlined"
@@ -268,51 +347,41 @@ function Dashboard() {
                   </Button>
                 </Link>
               </Box>
-              {theRoom != null ? (
-                <Box
-                  sx={{
-                    width: "100%",
-                    height: "200px",
-                  }}
-                >
-                  <p>{today}</p>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      width={500}
-                      height={300}
-                      data={DATA}
-                      margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                      }}
-                    >
-                      <XAxis dataKey="time" />
-                      <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip />
-                      <Legend />
-                      <Line
-                        yAxisId="left"
-                        type="monotone"
-                        dataKey="temperature"
-                        stroke="#8884d8"
-                        name="Nhiệt độ"
-                      />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="humidity"
-                        stroke="#82ca9d"
-                        name="Độ ẩm"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </Box>
-              ) : (
-                <></>
-              )}
+              {room.current != null ? 
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "200px",
+                }}
+              >
+                <p>{today}</p>
+                {device != null ? 
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    width={500}
+                    height={300}
+                    data={record}
+                    margin={{
+                      top: 5,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <XAxis dataKey="time"/>
+                    <YAxis yAxisId="left" />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="message"
+                      stroke="#8884d8"
+                      name={nameField}
+                    />
+                  </LineChart>
+                </ResponsiveContainer> : <></> }
+              </Box> : <></>}
             </Item>
           </Grid>
           <Grid item xs={4}>
@@ -373,8 +442,8 @@ function Dashboard() {
           <Grid item xs={4}>
             <Item>
               <p>Đèn</p>
-              {theRoom != null ? (
-                listRooms[theRoom].devices
+              {room.current != null ? (
+                listRooms[room.current].devices
                   .filter((device) => device.type == "light")
                   .map((light) => (
                     <Box key={light.name}>
@@ -416,8 +485,8 @@ function Dashboard() {
           <Grid item xs={4}>
             <Item>
               <p>Máy lạnh và quạt</p>
-              {theRoom != null ? (
-                listRooms[theRoom].devices
+              {room.current != null ? (
+                listRooms[room.current].devices
                   .filter((device) => device.type == "fan")
                   .map((fan) => (
                     <Box key={fan.name}>
@@ -468,8 +537,8 @@ function Dashboard() {
           <Grid item xs={4}>
             <Item>
               <p>Cảm biến</p>
-              {theRoom != null ? (
-                listRooms[theRoom].devices
+              {room.current != null ? (
+                listRooms[room.current].devices
                   .filter(
                     (device) => device.type == "temp" || device.type == "humi"
                   )
