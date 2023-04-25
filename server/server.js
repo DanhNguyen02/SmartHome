@@ -4,17 +4,17 @@ const swaggerUi = require("swagger-ui-express");
 const app = express();
 const http = require("http");
 const server = http.createServer(app);
-const cors = require('cors');
-require('dotenv').config({ path: './config.env' });
+const cors = require("cors");
+require("dotenv").config({ path: "./config.env" });
 const port = process.env.PORT || 5000;
-const bodyParser = require('body-parser');
-const dbo = require('./db/conn');
-const mqtt = require('./mqtt/conn');
+const bodyParser = require("body-parser");
+const dbo = require("./db/conn");
+const mqtt = require("./mqtt/conn");
 
 const socketIo = require("socket.io")(server, {
   cors: {
-      origin: "*",
-  }
+    origin: "*",
+  },
 });
 
 socketIo.on("connection", (socket) => {
@@ -22,14 +22,14 @@ socketIo.on("connection", (socket) => {
 
   socket.emit("getId", socket.id);
 
-  socket.on("sendDataClient", function(data) {
-    console.log(data)
+  socket.on("sendDataClient", function (data) {
+    console.log(data);
     socketIo.emit("sendDataServer", { data });
-  })
+  });
 
-  socket.on("deviceChanged", function(data) {
-    console.log(data)
-  })
+  socket.on("deviceChanged", function (data) {
+    console.log(data);
+  });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
@@ -72,9 +72,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 server.listen(port, () => {
   // perform a database connection when server starts
-  dbo.connectToServer(function (err) {
-    if (err) console.error(err);
-  });
+  dbo.getDb();
 
   console.log(`Server is running on port: ${port}`);
 

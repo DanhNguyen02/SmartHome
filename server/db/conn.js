@@ -5,20 +5,25 @@ const client = new MongoClient(Db, {
   useUnifiedTopology: true,
 });
 
-var _db;
+let instance = null;
 
-module.exports = {
-  connectToServer: function (callback) {
-    client.connect(function (err, db) {
-      if (db) {
-        _db = db.db("smarthome");
-        console.log("Successfully connected to MongoDB.");
-      }
-      return callback(err);
-    });
-  },
+class Database {
+  constructor() {
+    if (!instance) {
+      client.connect((err, db) => {
+        if (db) {
+          this.db = db.db("smarthome");
+          console.log("Successfully connected to MongoDB.");
+        }
+      });
+      instance = this;
+    }
+    return instance;
+  }
 
-  getDb: function () {
-    return _db;
-  },
-};
+  getDb() {
+    return this.db;
+  }
+}
+
+module.exports = new Database();
