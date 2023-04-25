@@ -283,7 +283,7 @@ function History() {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis />
+            <XAxis dataKey='time'/>
             <YAxis />
             <Tooltip />
             <Legend />

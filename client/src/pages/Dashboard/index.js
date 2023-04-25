@@ -243,6 +243,7 @@ function Dashboard() {
         record.time = (parseInt(hour) + 12) + ":" + minute + ":" + second;
       }
     }
+    return record;
   }
  
   async function getSensorRecords(device) {
@@ -261,11 +262,13 @@ function Dashboard() {
       return;
     }
 
-    const record = await response.json();
-    console.log(record);
-    record.filter(getDataInDay);
-    record.map(parseTime);
-    setRecord(record.reverse());
+    let data = await response.json();
+    console.log(data);
+    data = data.filter(getDataInDay);
+    console.log(data);
+    data = data.map(parseTime);
+    console.log(data);
+    setRecord(data.reverse());
   }
 
   return (
