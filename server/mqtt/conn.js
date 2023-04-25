@@ -1,5 +1,4 @@
 const mqtt = require("mqtt");
-
 const dbo = require("../db/conn");
 
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
@@ -14,7 +13,7 @@ const client = mqtt.connect(connectUrl, {
 });
 
 module.exports = {
-  subcribe: function (callback) {
+  subcribe: function (callback, socketIo) {
     const topics = [
       "haiche198/feeds/yolo-led",
       "haiche198/feeds/yolo-fan",
@@ -30,11 +29,51 @@ module.exports = {
     });
     client.on("message", (topic, message) => {
       console.log("Received Message:", topic, message.toString());
+
+      let db_connect = dbo.getDb();
+
+      // Kiem tra nguong
+      db_connect.collection("user").findOne({}, function (err, result) {
+        if (err) throw err;
+        let rooms = result.rooms;
+        for (let room of rooms) {
+          for (let device of room.devices) {
+            if (device.feed == topic) {
+              if (
+                parseFloat(message) > parseFloat(device.max) ||
+                parseFloat(message) < parseFloat(device.min)
+              ) {
+                let newNoti = {
+                  time: new Date().toLocaleString(),
+                  room: room.name,
+                  device: device.name,
+                  type: device.type,
+                  data: message.toString(),
+                };
+                db_connect.collection("user").findOne({}, function (err, result) {
+                  if (err) throw err;
+                  let noti = result.noti;
+                  noti.push(newNoti);
+                  db_connect.collection("user").updateOne(
+                    { email: "test@gmail.com" },
+                    { $set: { noti: noti } },
+                    function(err, result) {
+                      if (err) throw err;
+                      socketIo.emit('newNoti', 'Received notification');
+                    }
+                  );
+                });
+              }
+            }
+          }
+        }
+      });
+
       var messageObject = {
         time: new Date().toLocaleString(),
         message: message.toString(),
       };
-      let db_connect = dbo.getDb();
+
       db_connect
         .collection(topic)
         .insertOne(messageObject, function (err, res) {

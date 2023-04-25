@@ -14,7 +14,9 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { Link } from "react-router-dom";
 import { Divider } from '@material-ui/core';
+import SensorIcon from "../../../../assets/images/sensorIcon.png";
 import axios from 'axios';
+import io from 'socket.io-client';
 
 
 const Username = "Hung Nguyen";
@@ -59,19 +61,23 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+const socket = io('http://localhost:5000');
+
 export default function PrimarySearchAppBar() {
   const [notifications, setNotifications] = React.useState([]);
   const [badgeCount, setBadgeCount] = React.useState(0);
 
   React.useEffect(() => {
-    axios.get('http://localhost:5000/api/noti')
-      .then(response => {
-        setNotifications(response.data.reverse());
-        setBadgeCount(response.data.length);
-      })
-      .catch(error => console.error(error));
+  // Fetch initial notifications data
+    const GetNotification = async () => {
+      const response = await axios.get('http://localhost:5000/api/noti');
+      setNotifications(response.data.reverse());
+      setBadgeCount(response.data.length);
+    }
+    GetNotification();
+    socket.on('newNoti', () => GetNotification());
+    return () => socket.off('newNoti');
   }, []);
-  console.log(notifications)
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -213,50 +219,70 @@ export default function PrimarySearchAppBar() {
             <IconButton
               size="large"
               aria-label="show 17 new notifications"
-              color="inherit"
-            >
+              color="inherit">
               <Badge badgeContent={badgeCount} color="error" onClick={handleClick}>
-              <NotificationsIcon />
+              <NotificationsIcon/>
               </Badge>
               <Menu
                 id={id}
                 anchorEl={showNoti}
                 open={Boolean(showNoti)}
                 onClose={handleClose}>
-                  {notifications.map((notification, index) => (
+                  <p style={{fontWeight: 'bold', fontSize: 15, marginBottom: 10, marginLeft: 10}}>Thông báo</p>
+                  <Box
+                    sx={{
+                      maxHeight: '300px',
+                      overflow: 'auto'
+                    }}
+                  >
+                  {notifications.length ? notifications.map((notification, index) => (
                     <>
-                      {index !== 0 && <Box sx={{
-                        height: '2px',
-                        borderTop: '2px solid #6C63FF',
-                        borderColor: '#6C63FF',
-                        my: 2,
-                      }} />}
+                      {index !== 0 && <Divider/>}
                       <MenuItem sx={{
-                        fontSize: 13,
-                        width: '320px',
+                        fontSize: 14,
+                        maxWidth: '370px',
                         whiteSpace: 'normal',
                         wordBreak: 'break-word',
-                        borderRadius: '10px',
-                        m: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'flex-start',
                       }}>
+                        <Box>
+                          <img
+                            src={SensorIcon}
+                            alt="icon"
+                            style={{
+                                width: "28px",
+                                height: "28px",
+                                borderRadius: "180%",
+                                marginRight: "10px",
+                                boxShadow: "0px 5px 25px -5px rgba(0,0,0,0.75)",
+                            }}/>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'flex-start',
+                          }}>
                         <span>
-                          Thiết bị vượt ngưỡng cho phép:
-                          <span style={{fontWeight: 'bold', color: '#6C63FF'}}> {notification.device} - </span>
-                          <span style={{fontWeight: 'bold', color: '#6C63FF'}}> {notification.room}</span>
+                          <span style={{fontWeight: 'bold'}}>{notification.device}&nbsp;-&nbsp;</span>
+                          <span style={{fontWeight: 'bold'}}>{notification.room}</span>
+                          &nbsp;vượt ngưỡng cho phép:&nbsp;
+                          <span style={{fontWeight: 'bold'}}>{notification.data}{notification.type === 'temp' ? '°C' : '%'}</span>
                         </span>
-                        <span>Thông số:
-                          <span style={{fontWeight: 'bold', color: '#6C63FF'}}> {notification.data}</span>
+                        <span>
+                          <span style={{color: 'gray', fontSize: 12}}>{notification.time}</span>
                         </span>
-                        <span>Thời gian:
-                          <span style={{fontWeight: 'bold', color: '#6C63FF'}}> {notification.time}</span>
-                        </span>
+                        </Box>
                       </MenuItem>
                     </>
-                  ))}
+                  )) : <MenuItem sx={{
+                    fontSize: 14,
+                    width: '370px',
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-word',
+                    justifyContent: 'center'
+                  }}>Không có thông báo</MenuItem>}
+                  </Box>
               </Menu>
             </IconButton>
           </Box>
