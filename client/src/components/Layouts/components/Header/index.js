@@ -193,18 +193,8 @@ export default function PrimarySearchAppBar() {
         style={{ background: "#fff", color: "#37375C" }}
       >
         <Toolbar>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Tìm kiếm…"
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <p style={{ marginTop: "15px" }}>Xin chào, {Username}</p>
             <IconButton
               size="large"
               edge="end"

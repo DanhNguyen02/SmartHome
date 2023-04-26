@@ -264,10 +264,10 @@ function Dashboard() {
 
     let data = await response.json();
     console.log(data);
-    data = data.filter(getDataInDay);
-    console.log(data);
-    data = data.map(parseTime);
-    console.log(data);
+    console.log(data[0].time);
+    // data = data.filter(getDataInDay);
+    // data = data.map(parseTime);
+    // console.log(data);
     setRecord(data.reverse());
   }
 
