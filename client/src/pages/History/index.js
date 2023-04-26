@@ -67,7 +67,7 @@ function History() {
             }
           }
           setNameRoom(nameRoom);
-          if (nameRoom != null) setListSensors(theRoom.devices.filter(device => (device.type === 'temp' || device.type === 'humi' || device.type === 'light')));
+          if (nameRoom != null) setListSensors(theRoom.devices);
           else {
             setRoom(null);
             setSensor(null);
@@ -264,7 +264,7 @@ function History() {
     let records = record;
     if (startDate != null) records = records.filter(checkStartDate);
     if (endDate != null) records = records.filter(checkEndDate);
-    setRecord(records);
+    setRecord(records.reverse());
   }
 
   function Graph() {
